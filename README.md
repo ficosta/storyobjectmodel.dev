@@ -64,8 +64,14 @@ The full consortium roster — 14 champions and 16 technology participants — l
 Written from the SOM hackathon starter documentation —
 [`som-hackathon-starter-dotnet/docs`](https://github.com/google/virtual-broadcast-production-assistant/tree/main/som-hackathon-starter-dotnet/docs)
 — covering the envelope reference, message contracts, distribution-layer contracts,
-architecture, skill validation and the user guide. Background on the standard's origin comes
-from the SMART STORIES IBC Accelerator project.
+architecture, skill validation and the user guide.
+
+Context on the standard itself — the four ideas it rests on, the Story Agent, the SOM/Skills
+boundary, the consortium and the timeline — comes from the project's own public writing, all
+of it linked from the "Further reading" section on the home page and listed in
+`src/data/reading.ts`: the TVBEurope interviews with Octopus Newsroom and Moments Lab, AP
+Workflow Solutions on the coordination problem, the Octopus interview with Milan Varga, the
+Trint pre-show piece, and the IBC Accelerator project page.
 
 **The vendored JSON Schemas are the source of truth.** Where this site and a schema disagree,
 the schema is right.

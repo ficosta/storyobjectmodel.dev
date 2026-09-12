@@ -53,3 +53,10 @@ export const PARTICIPANTS: string[] = [
 
 export const IBC_PROJECT_URL =
   'https://show.ibc.org/accelerator-project-incubator-2026-smart-stories-agentic-production-ecosystem';
+
+/** AP Workflow Solutions on the coordination problem SOM is meant to solve. */
+export const AP_ARTICLE_URL = 'https://workflow.ap.org/news/newsroom-coordination-problem/';
+
+/** The Octopus Newsroom interview with Milan Varga on writing the standard. */
+export const INTERVIEW_URL =
+  'https://www.octopus-news.com/writing-an-open-standard-for-story-context-an-interview-with-milan-varga/';

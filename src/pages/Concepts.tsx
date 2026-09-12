@@ -83,6 +83,7 @@ const GLOSSARY: [string, React.ReactNode][] = [
   ['Link', <>An Asset-to-Destination commitment, with a per-destination compliance gate.</>],
   ['Telling', <>An on-air exposure event; on-air state is derived from Tellings, never stored on the asset.</>],
   ['Skill', <>A passive, data-driven newsroom automation; the executor runs it.</>],
+  ['Story Agent', <>One agent per story, persistent from tip-off through distribution: it follows the story across tools, tracks change, and records interactions to an auditable trail.</>],
   ['Executor', <>The process that watches the bus, decides which skills apply, and runs their rules against each snapshot.</>],
   ['Advert', <>A skill’s machine-readable declaration of what it operates on, fires on, and produces.</>],
   ['Recall', <>The executor’s deterministic advert-matching step — deciding which skills run.</>],
@@ -107,6 +108,7 @@ export default function Concepts() {
           { href: '#snapshots', label: 'Snapshots' },
           { href: '#lifecycle', label: 'Lifecycle' },
           { href: '#skills', label: 'Skills & recall' },
+          { href: '#boundary', label: 'The boundary' },
           { href: '#gate', label: 'The gate' },
           { href: '#safestate', label: 'Safe-state' },
           { href: '#glossary', label: 'Glossary' },
@@ -118,7 +120,7 @@ export default function Concepts() {
           <p className="eyebrow">The objects</p>
           <h2>What SOM actually models</h2>
           <p className="lede">
-            Six nouns carry almost everything. Learn these and the message contracts read themselves.
+            Seven nouns carry almost everything. Learn these and the message contracts read themselves.
           </p>
 
           <div className="grid g3" style={{ marginTop: 28 }}>
@@ -153,6 +155,15 @@ export default function Concepts() {
               <p className="small">
                 A passive, data-driven newsroom automation. It declares what it operates on, the executor decides
                 when it runs, and its outputs are proposals — never actions.
+              </p>
+            </div>
+            <div className="card">
+              <div className="lane-icon">◎</div>
+              <h3>Story Agent</h3>
+              <p className="small">
+                One per story, persistent from tip-off through distribution. It follows the story across every tool
+                it touches, tracks what changed, asks the rest of the stack what is happening, and records every
+                interaction to an auditable trail.
               </p>
             </div>
             <div className="card">
@@ -286,6 +297,61 @@ export default function Concepts() {
           <p style={{ marginTop: 22 }}>
             <Link to="/skills">The seven rule types, skill anatomy and the validation layers →</Link>
           </p>
+        </div>
+      </section>
+
+      <section id="boundary">
+        <div className="wrap">
+          <p className="eyebrow">The boundary</p>
+          <h2>What belongs in SOM, and what doesn’t</h2>
+          <p className="lede">
+            This is the live argument in the standard, and the one worth understanding before you model anything.
+          </p>
+
+          <div className="grid g2" style={{ marginTop: 26, alignItems: 'start' }}>
+            <div className="card">
+              <span className="kicker">SOM — the common shape</span>
+              <p className="small">
+                The structure that can travel across organisations, vendors and story types. What a story is, what
+                changed, what state it is in, how things relate.
+              </p>
+              <p className="small mb0">
+                It carries editorial context and <b>interprets none of it</b>. SOM holds no intelligence — the
+                intelligence stays inside each vendor’s own tools.
+              </p>
+            </div>
+            <div className="card">
+              <span className="kicker">Skills — the logic</span>
+              <p className="small">
+                Editorial standards, compliance rules, show formats, institutional practice. The things that
+                legitimately differ between one newsroom and the next.
+              </p>
+              <p className="small mb0">
+                A broadcaster’s election coverage and an entertainment show can use the same model and apply it
+                very differently. Written once, as portable configuration that agents in different systems can
+                read.
+              </p>
+            </div>
+          </div>
+
+          <div className="note warn" style={{ marginTop: 24 }}>
+            <p className="mb0">
+              <b>Why the line is hard.</b> Draw it too broadly and the standard becomes rigid — every newsroom’s
+              particular habits baked into something meant to be shared. Draw it too narrowly and it becomes too
+              thin to be worth adopting. The project’s own working view is that the shared layer may end up{' '}
+              <i>smaller</i> than people expect, and that this is fine: a useful common model doesn’t have to
+              capture everything, only the right things.
+            </p>
+          </div>
+
+          <div className="note" style={{ marginTop: 16 }}>
+            <p className="mb0">
+              <b>Status, honestly.</b> The line being drawn today may move once vendors start building against it.
+              The public draft specification is due at IBC in September 2026; what this site documents is the
+              schema pack and reference implementation as they stand, not a ratified standard. Treat the vendored
+              schemas as the source of truth and expect the model to keep moving.
+            </p>
+          </div>
         </div>
       </section>
 

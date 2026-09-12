@@ -5,7 +5,15 @@ import FieldExplorer from '../components/FieldExplorer';
 import { Accordion, useHashScroll } from '../components/Bits';
 import { ENVELOPE_FIELDS } from '../data/envelope';
 import { FAQS } from '../data/topics';
-import { CHAMPIONS, IBC_PROJECT_URL, PARTICIPANTS, PROPOSERS } from '../data/consortium';
+import {
+  AP_ARTICLE_URL,
+  CHAMPIONS,
+  IBC_PROJECT_URL,
+  INTERVIEW_URL,
+  PARTICIPANTS,
+  PROPOSERS,
+} from '../data/consortium';
+import { DELIVERABLES, FOUNDATIONS, READING } from '../data/reading';
 
 const ENVELOPE_SAMPLES: Record<string, string> = {
   som_version: '"0.3.2"',
@@ -164,8 +172,41 @@ export default function Home() {
         <div className="wrap">
           <p className="eyebrow">Why SOM matters</p>
           <h2>What changes when story context is shared</h2>
+          <p className="lede">
+            The problem is not that systems can’t exchange data. It’s that they can’t exchange the story’s
+            <em> current meaning</em>.
+          </p>
 
-          <div className="grid g3" style={{ marginTop: 28 }}>
+          <div className="scenario" style={{ marginTop: 30 }}>
+            <div>
+              <span className="kicker">The shape of the failure</span>
+              <p>
+                A wildfire is moving toward a residential area. The graphics system is building a map from the
+                evacuation zone it was given. Officials widen the boundary; the producer updates the story.
+              </p>
+              <p className="mb0">
+                One system now holds the new version. Another is still working from the old one — not because the
+                link between them is broken, but because nothing in the stack had a way to say <em>the story
+                changed</em>. A person used to close that gap by telling everyone. A graphics assistant can’t
+                overhear the gallery.
+              </p>
+            </div>
+            <div>
+              <span className="kicker">What SOM adds</span>
+              <p>
+                The story context updates once, and every subscribed system gets the change. No one chases
+                downstream tools by hand.
+              </p>
+              <p className="mb0">
+                This is why SOM is described as <b>complementary to MOS</b>, not a replacement for it. MOS has moved
+                data reliably between newsroom systems for twenty years, and it still does — but it was built for a
+                world where humans supplied the meaning layer on top. That assumption holds right up until the tools
+                start interpreting the story themselves.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid g3" style={{ marginTop: 30 }}>
             <div className="card">
               <h3>n×n becomes n</h3>
               <p className="small">
@@ -207,6 +248,14 @@ export default function Home() {
               </p>
             </div>
             <div className="card">
+              <h3>Provenance travels with the story</h3>
+              <p className="small">
+                Today the origin of a claim, the name of whoever checked it, and the clearance that let it go to
+                air are recorded in whichever system happened to be open, and reassembled by a person if anyone
+                asks later. A shared story object moves that record along with the story.
+              </p>
+            </div>
+            <div className="card">
               <h3>Stream-first, no query API</h3>
               <p className="small">
                 There is no “fetch me story X” endpoint. Stories republish in full on every change, so a
@@ -235,10 +284,9 @@ export default function Home() {
                 implementation, an integration guide and live multi-vendor demonstrations.
               </p>
               <p className="mb0">
-                The four ideas it rests on: a shared story structure that carries editorial context{' '}
-                <em>without interpreting it</em>; story agents that track change across tools; processing that
-                stays decentralised inside each vendor’s own software; and a Skills reference architecture that
-                makes editorial rules portable.
+                What comes out of the development phase is five things: {DELIVERABLES.slice(0, -1).join(', ')} and{' '}
+                {DELIVERABLES[DELIVERABLES.length - 1].toLowerCase()}. The public draft specification is due at IBC
+                in September 2026.
               </p>
             </div>
             <div className="card">
@@ -251,13 +299,16 @@ export default function Home() {
               <p className="small mb0">
                 Which matters more the more automation is in the building: a tool with no access to editorial
                 context doesn’t decline to answer. It fills the gap with an assumption, and the assumption looks
-                exactly like a fact.{' '}
-                <a
-                  href="https://www.octopus-news.com/writing-an-open-standard-for-story-context-an-interview-with-milan-varga/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Background interview ↗
+                exactly like a fact.
+              </p>
+              <p className="small mb0">
+                Further reading:{' '}
+                <a href={AP_ARTICLE_URL} target="_blank" rel="noreferrer">
+                  AP on the coordination problem ↗
+                </a>{' '}
+                ·{' '}
+                <a href={INTERVIEW_URL} target="_blank" rel="noreferrer">
+                  interview with Milan Varga ↗
                 </a>
               </p>
             </div>
@@ -285,7 +336,37 @@ export default function Home() {
               <a href={IBC_PROJECT_URL} target="_blank" rel="noreferrer">
                 IBC Accelerator project page ↗
               </a>
-              .
+              . Sources differ slightly on where one or two organisations sit.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="foundations">
+        <div className="wrap">
+          <p className="eyebrow">The four ideas</p>
+          <h2>What the standard rests on</h2>
+          <p className="lede">
+            Stated by the project itself, and worth reading closely — each one rules something out as much as it
+            rules something in.
+          </p>
+
+          <div className="grid g4" style={{ marginTop: 28 }}>
+            {FOUNDATIONS.map((f, i) => (
+              <div className="card" key={f.title}>
+                <span className="kicker">{String(i + 1).padStart(2, '0')}</span>
+                <h3>{f.title}</h3>
+                <p className="small mb0">{f.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="note" style={{ marginTop: 26 }}>
+            <p className="mb0">
+              <b>SOM contains no intelligence.</b> It is the shared structure; the intelligence stays inside each
+              vendor’s tools. Its job is only to make sure those tools are looking at the same picture of the
+              story — which is also why the interesting argument is not about what SOM can do, but about{' '}
+              <Link to="/concepts#boundary">where its edge belongs</Link>.
             </p>
           </div>
         </div>
@@ -337,7 +418,9 @@ export default function Home() {
                   </td>
                   <td>Device control, playlist item state</td>
                   <td>
-                    Complementary. MOS moves items to devices; SOM shares the editorial context around the story.
+                    Complementary, and explicitly so. MOS gives systems a shared pipe for data and has done it well
+                    for two decades; humans supplied the meaning on top. SOM is a coordination layer that can sit
+                    across a MOS environment and carry that meaning in a form a tool can read.
                   </td>
                 </tr>
                 <tr>
@@ -470,6 +553,28 @@ export default function Home() {
           <p className="eyebrow">Common questions</p>
           <h2 style={{ marginBottom: 28 }}>Before you ask</h2>
           <Accordion items={FAQS} />
+        </div>
+      </section>
+
+      <section id="reading">
+        <div className="wrap">
+          <p className="eyebrow">Further reading</p>
+          <h2>Straight from the source</h2>
+          <p className="lede">
+            This site is a secondary source. These are the primary ones.
+          </p>
+
+          <div className="reading" style={{ marginTop: 28 }}>
+            {READING.map((r) => (
+              <a className="card" href={r.url} target="_blank" rel="noreferrer" key={r.url}>
+                <span className="kicker">
+                  {r.source} · {r.date}
+                </span>
+                <h3>{r.title} ↗</h3>
+                <p className="small mb0">{r.why}</p>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 

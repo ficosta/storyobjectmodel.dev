@@ -691,3 +691,30 @@ ul.clean li::before {
 
 footer.site .legal .craft { color: var(--fg-2); }
 footer.site .legal .craft a { color: var(--accent); font-weight: 600; }
+
+/* ---------- two-up scenario ---------- */
+
+.scenario {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.scenario > div { padding: 26px 28px; }
+.scenario > div + div { border-left: 1px solid var(--line); }
+.scenario p { font-size: .95rem; }
+.scenario p:last-child { margin-bottom: 0; }
+@media (max-width: 760px) {
+  .scenario { grid-template-columns: 1fr; }
+  .scenario > div + div { border-left: 0; border-top: 1px solid var(--line); }
+}
+
+/* ---------- further reading ---------- */
+
+.reading { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+.reading .card h3 { font-size: 1.05rem; margin-bottom: .5em; }
+.reading .card .kicker { color: var(--accent); }
