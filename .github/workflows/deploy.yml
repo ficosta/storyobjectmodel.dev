@@ -55,6 +55,20 @@ jobs:
           echo "purge: $code"
           case "$code" in 20*) ;; *) exit 1 ;; esac
 
+      # IndexNow tells Bing, Yandex and friends a URL changed, instead of waiting
+      # for their next crawl. Google does not participate — its only levers are
+      # the sitemap and Search Console's "Request indexing".
+      - name: Ping IndexNow
+        continue-on-error: true
+        env:
+          INDEXNOW_KEY: e653052944f4643743c9adc7bd176aa3
+        run: |
+          urls=$(sed -n 's|.*<loc>\(.*\)</loc>.*|"\1"|p' dist/sitemap.xml | paste -sd, -)
+          curl -s -X POST https://api.indexnow.org/indexnow \
+            -H 'Content-Type: application/json' \
+            -d "{\"host\":\"storyobjectmodel.dev\",\"key\":\"$INDEXNOW_KEY\",\"keyLocation\":\"https://storyobjectmodel.dev/$INDEXNOW_KEY.txt\",\"urlList\":[$urls]}" \
+            -w 'indexnow: %{http_code}\n'
+
       - name: Smoke-test the live site
         run: |
           set -euo pipefail
