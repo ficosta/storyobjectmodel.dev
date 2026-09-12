@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { metaForPath } from '../data/seo';
 import { Logo } from './Logo';
 
 const THEME_KEY = 'som-theme';
@@ -13,9 +14,15 @@ function readTheme(): 'dark' | 'light' {
 }
 
 function ThemeToggle() {
-  const [theme, setTheme] = useState<'dark' | 'light'>(readTheme);
+  // Starts null so the prerendered HTML and the first client render agree;
+  // the stored preference is read once, after mount. The inline script in
+  // index.html has already painted the right theme, so nothing flashes.
+  const [theme, setTheme] = useState<'dark' | 'light' | null>(null);
+
+  useEffect(() => setTheme(readTheme()), []);
 
   useEffect(() => {
+    if (!theme) return;
     document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem(THEME_KEY, theme);
@@ -24,13 +31,15 @@ function ThemeToggle() {
     }
   }, [theme]);
 
+  const current = theme ?? 'light';
+
   return (
     <button
       className="icon-btn"
-      onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
-      aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+      onClick={() => setTheme(current === 'light' ? 'dark' : 'light')}
+      aria-label={current === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
     >
-      {theme === 'light' ? '☾' : '☀'}
+      {current === 'light' ? '☾' : '☀'}
     </button>
   );
 }
@@ -163,7 +172,25 @@ function Footer() {
   );
 }
 
+/** Client-side navigation doesn't reload the document, so the head has to be
+ *  updated by hand. The prerendered HTML already carries the right tags for a
+ *  cold load; this keeps them right once the router takes over. */
+function useDocumentMeta() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const meta = metaForPath(pathname);
+    document.title = meta.title;
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', meta.description);
+    document
+      .querySelector('link[rel="canonical"]')
+      ?.setAttribute('href', `https://storyobjectmodel.dev${meta.path === '/' ? '/' : meta.path}`);
+  }, [pathname]);
+}
+
 export default function Layout({ children }: { children: React.ReactNode }) {
+  useDocumentMeta();
   return (
     <>
       <Header />

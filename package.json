@@ -3,12 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "storyobjectmodel.dev — a visual guide to the Story Object Model",
+  "description": "storyobjectmodel.dev \u2014 a visual guide to the Story Object Model",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir .ssr-build && node scripts/prerender.mjs",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "build:client": "vite build"
   },
   "dependencies": {
     "react": "^18.3.1",

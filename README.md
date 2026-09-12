@@ -20,8 +20,34 @@ npm run preview    # serve the built output
 npm run typecheck  # tsc, no emit
 ```
 
-The build copies `index.html` to `dist/404.html` so client-side routes survive a hard refresh
-on GitHub Pages; `public/_redirects` does the same job on Netlify.
+## SEO
+
+Every route is **prerendered to static HTML** at build time — `vite build --ssr` produces a
+server bundle, `scripts/prerender.mjs` renders each route with `renderToString`, rewrites the
+head, and writes the file. The browser then hydrates it.
+
+That buys the things a plain SPA cannot have:
+
+- a real `<title>`, description and **canonical** per page. Before this, every route shipped
+  the home page's canonical, which tells a crawler the other pages are duplicates and should
+  not be indexed.
+- content in the HTML source, so nothing depends on a crawler executing JavaScript.
+- a **200** on every route. The old SPA fallback answered deep links with a 404 status on
+  static hosts.
+- JSON-LD per page: `WebSite`, a `DefinedTerm` for SOM itself, `WebPage`, `BreadcrumbList` on
+  subpages, and `FAQPage` on the home page.
+
+Each route is written twice — `bus.html` and `bus/index.html` — because hosts disagree about
+how they resolve an extensionless path. Netlify and Cloudflare serve the first, GitHub Pages
+and S3-style hosts the second, so the canonical URL resolves on all of them.
+
+`scripts/prerender.mjs` also emits `sitemap.xml`, `robots.txt` and `llms.txt` (the
+[llmstxt.org](https://llmstxt.org) convention — a markdown summary telling a model what the
+site is and where the substance lives). All three are generated from the same data the app
+renders, so they cannot drift. Route titles and descriptions live in `src/data/seo.ts`.
+
+Client-side navigation updates title, description and canonical by hand, since the document
+never reloads.
 
 ## Structure
 
