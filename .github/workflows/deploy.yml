@@ -1,0 +1,63 @@
+# Publish storyobjectmodel.dev to Bunny edge storage on every push to the default
+# branch. Mirrors deploy.sh: build -> PUT dist/ -> purge the pull zone.
+name: Deploy to Bunny
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-bunny
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Upload dist/ to Bunny storage
+        env:
+          STORAGE_ZONE: ${{ vars.BUNNY_STORAGE_ZONE }}
+          STORAGE_KEY: ${{ secrets.BUNNY_STORAGE_KEY }}
+        run: |
+          set -euo pipefail
+          cd dist
+          find . -type f | sed 's|^\./||' | while read -r f; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -X PUT \
+              -H "AccessKey: $STORAGE_KEY" --data-binary "@$f" \
+              "https://storage.bunnycdn.com/$STORAGE_ZONE/$f")
+            case "$code" in
+              20*) printf '  %s  %s\n' "$code" "$f" ;;
+              *)   printf '  %s  %s  FAILED\n' "$code" "$f" >&2; exit 1 ;;
+            esac
+          done
+
+      # index.html keeps its path under a 30-day edge TTL, so the deploy is only
+      # live once the zone is purged.
+      - name: Purge the pull zone
+        env:
+          PULL_ID: ${{ vars.BUNNY_PULL_ID }}
+          API_KEY: ${{ secrets.BUNNY_API_KEY }}
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
+            -H "AccessKey: $API_KEY" "https://api.bunny.net/pullzone/$PULL_ID/purgeCache")
+          echo "purge: $code"
+          case "$code" in 20*) ;; *) exit 1 ;; esac
+
+      - name: Smoke-test the live site
+        run: |
+          set -euo pipefail
+          sleep 5
+          curl -sf -o /dev/null -w 'apex:%{http_code}\n'  https://storyobjectmodel.dev/
+          curl -sf -o /dev/null -w 'route:%{http_code}\n' https://storyobjectmodel.dev/envelope

@@ -146,8 +146,17 @@ function Footer() {
           </div>
         </div>
         <div className="legal">
-          <span>© {new Date().getFullYear()} — an unofficial community guide to the Story Object Model.</span>
-          <span>Summarised from the SOM starter docs. The schemas are the source of truth.</span>
+          <span>
+            © {new Date().getFullYear()} — an unofficial community guide to the Story Object Model. Summarised from
+            the SOM starter docs; the schemas are the source of truth.
+          </span>
+          <span className="craft">
+            Crafted with some agents love and{' '}
+            <a href="https://github.com/ficosta" target="_blank" rel="noreferrer">
+              ficosta
+            </a>{' '}
+            for the community
+          </span>
         </div>
       </div>
     </footer>

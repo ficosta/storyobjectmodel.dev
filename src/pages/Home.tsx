@@ -5,6 +5,7 @@ import FieldExplorer from '../components/FieldExplorer';
 import { Accordion, useHashScroll } from '../components/Bits';
 import { ENVELOPE_FIELDS } from '../data/envelope';
 import { FAQS } from '../data/topics';
+import { CHAMPIONS, IBC_PROJECT_URL, PARTICIPANTS, PROPOSERS } from '../data/consortium';
 
 const ENVELOPE_SAMPLES: Record<string, string> = {
   som_version: '"0.3.2"',
@@ -25,15 +26,6 @@ const ENVELOPE_SAMPLES: Record<string, string> = {
 const ENVELOPE_COMMENTS: Record<string, string> = {
   payload: 'the typed, schema-validated payload',
 };
-
-/** The organisations that proposed the standard. Heights are tuned per mark so
- *  wildly different aspect ratios read at the same optical weight. */
-const PROPOSERS: { name: string; logo: string; height: number }[] = [
-  { name: 'Associated Press', logo: '/logos/ap.svg', height: 42 },
-  { name: 'NBCUniversal', logo: '/logos/nbcu.svg', height: 22 },
-  { name: 'ITN', logo: '/logos/itn.svg', height: 40 },
-  { name: 'BBC', logo: '/logos/bbc.svg', height: 26 },
-];
 
 const REPO =
   'https://github.com/google/virtual-broadcast-production-assistant/tree/main/som-hackathon-starter-dotnet';
@@ -77,8 +69,8 @@ export default function Home() {
             ))}
           </ul>
           <p className="co">
-            Co-championed by Channel 4, Al Jazeera, The Washington Post, Sky and ITV, as the SMART STORIES IBC
-            Accelerator project.
+            Championed by fourteen newsrooms and standards bodies, with sixteen technology participants, as the
+            SMART STORIES IBC Accelerator project.
           </p>
         </div>
       </div>
@@ -233,10 +225,9 @@ export default function Home() {
           <div className="grid g2" style={{ marginTop: 24, alignItems: 'start' }}>
             <div>
               <p>
-                SOM is being specified by <b>SMART STORIES</b>, an IBC Accelerator project proposed by the
-                Associated Press, NBCUniversal, ITN and the BBC, with co-champions including Channel 4, Al Jazeera,
-                The Washington Post, Sky and ITV, and technology participants spanning newsroom, media and cloud
-                vendors.
+                SOM is being specified by <b>SMART STORIES</b>, an IBC Accelerator project. It was proposed by the
+                Associated Press, NBCUniversal, ITN and the BBC, and is now championed by fourteen newsrooms,
+                agencies and standards bodies, with sixteen technology companies participating.
               </p>
               <p>
                 The distinguishing choice is who holds the pen: the specification is written by working editors,
@@ -270,6 +261,32 @@ export default function Home() {
                 </a>
               </p>
             </div>
+          </div>
+
+          <div className="roster">
+            <div>
+              <h4>Champions</h4>
+              <ul>
+                {CHAMPIONS.map((name) => (
+                  <li key={name}>{name}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4>Participants</h4>
+              <ul>
+                {PARTICIPANTS.map((name) => (
+                  <li key={name}>{name}</li>
+                ))}
+              </ul>
+            </div>
+            <p className="small muted mb0">
+              Roster as published on the{' '}
+              <a href={IBC_PROJECT_URL} target="_blank" rel="noreferrer">
+                IBC Accelerator project page ↗
+              </a>
+              .
+            </p>
           </div>
         </div>
       </section>

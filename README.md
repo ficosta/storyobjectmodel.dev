@@ -36,12 +36,28 @@ src/
 Content lives in `src/data/` wherever it is tabular, so the reference tables and the
 interactive explorers stay in sync with a single edit.
 
+## Share images
+
+`scripts/make-share-images.py` draws the social cards from the same tokens as the site, on
+the light ground that is the site's default, so a WhatsApp or Slack preview matches the page
+it links to. Re-run it after any brand change:
+
+```bash
+python3 scripts/make-share-images.py
+```
+
+It writes `public/og.png` (1200×630, the `og:image`), `public/og-square.png` (1000×1000, for
+places that crop to a square) and `public/apple-touch-icon.png` (180×180).
+
 ## Logos
 
 `public/logos/` holds the marks of the organisations that proposed the standard — AP,
 NBCUniversal, ITN and the BBC. All four are the SVG versions published on Wikimedia Commons
 and tagged there as public domain (simple shapes / text logos). They are used nominatively,
 to identify the bodies behind the specification, and rendered greyscale in the credit row.
+
+The full consortium roster — 14 champions and 16 technology participants — lives in
+`src/data/consortium.ts`, transcribed from the IBC Accelerator project page.
 
 ## Content sources
 
