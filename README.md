@@ -1,0 +1,48 @@
+# storyobjectmodel.dev
+
+A visual guide to the **Story Object Model** — the open JSON pub/sub standard for sharing
+editorial story context across newsroom systems.
+
+Built as a static site: Vite + React + TypeScript, no backend, no CMS.
+
+## Develop
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+```
+
+## Build
+
+```bash
+npm run build      # → dist/
+npm run preview    # serve the built output
+npm run typecheck  # tsc, no emit
+```
+
+The build copies `index.html` to `dist/404.html` so client-side routes survive a hard refresh
+on GitHub Pages; `public/_redirects` does the same job on Netlify.
+
+## Structure
+
+```
+src/
+  pages/        one component per route (Home, Concepts, Envelope, Bus, Skills, GetStarted)
+  components/   Layout (header/footer/theme), LoopDiagram, FieldExplorer, Bits (shared UI)
+  data/         envelope.ts (field docs), topics.ts (topics, rule types, FAQ)
+  styles/       site.css — design tokens in :root, light theme under [data-theme="light"]
+```
+
+Content lives in `src/data/` wherever it is tabular, so the reference tables and the
+interactive explorers stay in sync with a single edit.
+
+## Content sources
+
+Written from the SOM hackathon starter documentation —
+[`som-hackathon-starter-dotnet/docs`](https://github.com/google/virtual-broadcast-production-assistant/tree/main/som-hackathon-starter-dotnet/docs)
+— covering the envelope reference, message contracts, distribution-layer contracts,
+architecture, skill validation and the user guide. Background on the standard's origin comes
+from the SMART STORIES IBC Accelerator project.
+
+**The vendored JSON Schemas are the source of truth.** Where this site and a schema disagree,
+the schema is right.
