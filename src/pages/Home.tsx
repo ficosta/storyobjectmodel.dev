@@ -26,6 +26,15 @@ const ENVELOPE_COMMENTS: Record<string, string> = {
   payload: 'the typed, schema-validated payload',
 };
 
+/** The organisations that proposed the standard. Heights are tuned per mark so
+ *  wildly different aspect ratios read at the same optical weight. */
+const PROPOSERS: { name: string; logo: string; height: number }[] = [
+  { name: 'Associated Press', logo: '/logos/ap.svg', height: 42 },
+  { name: 'NBCUniversal', logo: '/logos/nbcu.svg', height: 22 },
+  { name: 'ITN', logo: '/logos/itn.svg', height: 40 },
+  { name: 'BBC', logo: '/logos/bbc.svg', height: 26 },
+];
+
 const REPO =
   'https://github.com/google/virtual-broadcast-production-assistant/tree/main/som-hackathon-starter-dotnet';
 
@@ -61,10 +70,11 @@ export default function Home() {
         <div className="wrap">
           <p>Proposed by these newsroom organisations</p>
           <ul>
-            <li>Associated Press</li>
-            <li>NBCUniversal</li>
-            <li>ITN</li>
-            <li>BBC</li>
+            {PROPOSERS.map((o) => (
+              <li key={o.name}>
+                <img src={o.logo} alt={o.name} style={{ height: o.height }} />
+              </li>
+            ))}
           </ul>
           <p className="co">
             Co-championed by Channel 4, Al Jazeera, The Washington Post, Sky and ITV, as the SMART STORIES IBC

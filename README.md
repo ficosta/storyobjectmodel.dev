@@ -36,6 +36,13 @@ src/
 Content lives in `src/data/` wherever it is tabular, so the reference tables and the
 interactive explorers stay in sync with a single edit.
 
+## Logos
+
+`public/logos/` holds the marks of the organisations that proposed the standard — AP,
+NBCUniversal, ITN and the BBC. All four are the SVG versions published on Wikimedia Commons
+and tagged there as public domain (simple shapes / text logos). They are used nominatively,
+to identify the bodies behind the specification, and rendered greyscale in the credit row.
+
 ## Content sources
 
 Written from the SOM hackathon starter documentation —

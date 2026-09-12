@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Logo } from './Logo';
 
 const THEME_KEY = 'som-theme';
 
@@ -54,7 +55,10 @@ function Header() {
     <header className="site">
       <div className="nav">
         <Link className="brand" to="/">
-          storyobjectmodel<span className="tld">.dev</span>
+          <Logo size={26} />
+          <span>
+            storyobjectmodel<span className="tld">.dev</span>
+          </span>
         </Link>
         <button className="icon-btn" id="navToggle" aria-label="Toggle navigation" onClick={() => setOpen((o) => !o)}>
           ☰
@@ -85,7 +89,10 @@ function Footer() {
         <div className="cols">
           <div>
             <Link className="brand" to="/" style={{ marginBottom: 12 }}>
-              storyobjectmodel<span className="tld">.dev</span>
+              <Logo size={24} />
+              <span>
+                storyobjectmodel<span className="tld">.dev</span>
+              </span>
             </Link>
             <p className="small muted" style={{ maxWidth: '34ch' }}>
               An open JSON pub/sub standard for sharing story context across the newsroom.
