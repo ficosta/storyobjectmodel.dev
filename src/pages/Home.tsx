@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import AccentWord from '../components/AccentWord';
 import LoopDiagram from '../components/LoopDiagram';
 import FieldExplorer from '../components/FieldExplorer';
 import { Accordion, useHashScroll } from '../components/Bits';
@@ -12,7 +13,7 @@ const ENVELOPE_SAMPLES: Record<string, string> = {
   causation_id: '"0190a000-…-91ff"',
   message_type: '"story.context"',
   timestamp: '"2026-06-12T09:30:00Z"',
-  originating_system: '{ "system_id": "enps-lon-01", "system_type": "ncs", … }',
+  originating_system: '{ "system_id": "enps-lon-01", … }',
   topic: '"som.story.context"',
   modification_header: '{ "story_version": 7, … }',
   _actors: '{ "ed1": { … } }',
@@ -35,26 +36,40 @@ export default function Home() {
     <>
       <div className="hero">
         <div className="wrap">
-          <span className="pill">
-            <b>v0.3.2</b> schema pack · IBC 2026
-          </span>
           <h1>
-            One bus for <span className="grad">story context</span>. Every tool on it.
+            One bus for <AccentWord>story context</AccentWord>.
+            <br />
+            Every tool on it.
           </h1>
           <p className="lede">
-            The <b>Story Object Model</b> is an open JSON pub/sub standard for sharing editorial story context
-            across every system in a newsroom — NRCS, MAM, transcription, graphics, compliance, playout. Instead
-            of wiring <em>n×n</em> point-to-point integrations, every system reads and writes typed messages on a
-            shared bus.
+            The Story Object Model is an open standard for sharing editorial story context between newsroom
+            systems. No point-to-point integrations, no vendor lock-in — one set of typed messages every tool can
+            read and write.
           </p>
           <div className="btn-row">
             <Link className="btn primary" to="/get-started">
-              Get started →
+              Start here
             </Link>
             <Link className="btn" to="/concepts">
               SOM in five minutes
             </Link>
           </div>
+        </div>
+      </div>
+
+      <div className="credits">
+        <div className="wrap">
+          <p>Proposed by these newsroom organisations</p>
+          <ul>
+            <li>Associated Press</li>
+            <li>NBCUniversal</li>
+            <li>ITN</li>
+            <li>BBC</li>
+          </ul>
+          <p className="co">
+            Co-championed by Channel 4, Al Jazeera, The Washington Post, Sky and ITV, as the SMART STORIES IBC
+            Accelerator project.
+          </p>
         </div>
       </div>
 

@@ -5,9 +5,9 @@ const THEME_KEY = 'som-theme';
 
 function readTheme(): 'dark' | 'light' {
   try {
-    return localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark';
+    return localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light';
   } catch {
-    return 'dark';
+    return 'light';
   }
 }
 
@@ -39,7 +39,6 @@ const NAV = [
   { to: '/envelope', label: 'Envelope' },
   { to: '/bus', label: 'The bus' },
   { to: '/skills', label: 'Skills' },
-  { to: '/get-started', label: 'Get started' },
 ];
 
 const REPO =
@@ -55,7 +54,7 @@ function Header() {
     <header className="site">
       <div className="nav">
         <Link className="brand" to="/">
-          <span className="dot" /> Story Object Model
+          storyobjectmodel<span className="tld">.dev</span>
         </Link>
         <button className="icon-btn" id="navToggle" aria-label="Toggle navigation" onClick={() => setOpen((o) => !o)}>
           ☰
@@ -70,6 +69,9 @@ function Header() {
             GitHub ↗
           </a>
           <ThemeToggle />
+          <Link className="nav-cta" to="/get-started">
+            Get started
+          </Link>
         </nav>
       </div>
     </header>
@@ -83,7 +85,7 @@ function Footer() {
         <div className="cols">
           <div>
             <Link className="brand" to="/" style={{ marginBottom: 12 }}>
-              <span className="dot" /> Story Object Model
+              storyobjectmodel<span className="tld">.dev</span>
             </Link>
             <p className="small muted" style={{ maxWidth: '34ch' }}>
               An open JSON pub/sub standard for sharing story context across the newsroom.
