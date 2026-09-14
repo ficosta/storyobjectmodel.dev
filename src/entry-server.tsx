@@ -17,5 +17,5 @@ export function render(url: string): string {
 // Re-exported so the prerenderer reads the same data the app does, rather than
 // a second copy that can drift.
 export { ROUTES, SITE_NAME, SITE_URL } from './data/seo';
-export { FAQS } from './data/topics';
+export { FAQS } from './data/faq';
 export { READING } from './data/reading';

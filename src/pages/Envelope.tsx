@@ -2,45 +2,60 @@ import { Link } from 'react-router-dom';
 import FieldExplorer from '../components/FieldExplorer';
 import { PageHead, useHashScroll } from '../components/Bits';
 import { ENVELOPE_FIELDS, WARNING_FIELDS } from '../data/envelope';
+import { SCHEMA_BASE_URL, repoFile } from '../data/consortium';
 
 const ENVELOPE_SAMPLES: Record<string, string> = {
-  som_version: '"0.3.2"',
-  message_id: '"0190a000-…-7000-aaa1"',
-  correlation_id: '"0190a000-…-7000-0c14"',
-  causation_id: '"0190a000-…-7000-91ff"',
+  som_version: '"1.0.0"',
+  message_id: '"0199a1c4-7a2e-7b31-8c55-4d2f9e6a1b07"',
+  correlation_id: '"0199a1c4-0000-7000-8000-000000000911"',
+  causation_id: '"0199a1c4-7a2e-7b31-8c55-4d2f9e6a1b06"',
   message_type: '"story.context"',
-  timestamp: '"2026-06-12T09:30:00.000000Z"',
-  originating_system: '{ "system_id": "enps-lon-01", "system_type": "ncs", … }',
-  topic: '"som.story.context"',
-  modification_header: '{ "story_version": 7, "modified_by": "ed1" }',
-  _actors: '{ "ed1": { "name": "A. Editor", … } }',
+  timestamp: '"2026-09-11T16:41:00.000000Z"',
+  originating_system: '{ "system_id": "ncs-nyc-01", "system_type": "ncs", … }',
+  topic: '"som.story.context.hurricane-2026-0911"',
+  modification_header: '{ "story_version": 7, "modified_by": "producer-7" }',
+  _actors: '{ … }',
   '@context': 'null',
-  extensions: '{ "com.nbcu.desk": "news" }',
-  payload: '{ … }',
+  extensions: '{ "com.example.desk": "news" }',
+  payload: '{ "story_id": "hurricane-2026-0911", … }',
 };
 
 const WARNING_SAMPLES: Record<string, string> = {
-  warning_id: '"wrn-019536b1-0001"',
-  skill_id: '"nbcu/editorial-standards"',
-  skill_version: '"0.1.0"',
-  story_id: '"story-2026-0612-001"',
-  scope: '"story"',
-  severity: '"flag"',
-  rule_id: '"nbcu-style-001"',
-  non_overridable: 'false',
-  affected_fields: '["headline"]',
-  detail: '"Informal term \'cops\' in headline."',
-  blocks: '[]',
-  skill_warning_ref: '"wrn-ref-019536b1"',
-  instance_ref: '"inst-nbcnews-web-001"',
+  warning_id: '"0190a000-0000-7000-8000-00000000000a"',
+  skill_id: '"smart-stories/hold-while-flagged"',
+  skill_version: '"0.2.2"',
+  story_id: '"story-verdict-0412"',
+  scope: '"story:story-verdict-0412"',
+  severity: '"hold"',
+  rule_id: '"house-reporting-restriction-hold"',
+  non_overridable: 'true',
+  affected_fields: '["editorial_gates[].status"]',
+  detail: '"Held off air. … Clears on a clearance at story scope by legal or above."',
+  blocks: '["air:story-verdict-0412"]',
+  skill_warning_ref: '"swr-0001"',
+  content_type: '"sync.ai.banner"',
+  message_type: '"skill.warning.raised"',
 };
 
-const RENAMES: [string, React.ReactNode][] = [
-  ['sources[]', <><code>editorial_source[]</code> — credibility enum <code>TRUSTED</code> | <code>VERIFIED</code> | <code>ENDORSED</code> | <code>UNVERIFIED</code></>],
-  ['skills_config.broadcaster', <><code>skills_config.newsroom</code></>],
+const RETIRED: [string, React.ReactNode][] = [
+  ['source (envelope)', <><code>originating_system</code> — the old field is hard-rejected</>],
+  ['signature (envelope)', <>Hard-rejected. There is no signature field.</>],
+  ['sources[]', <><code>editorial_source[]</code> — credibility <code>TRUSTED</code> | <code>VERIFIED</code> | <code>ENDORSED</code> | <code>UNVERIFIED</code></>],
+  ['skills_config.broadcaster', <><code>skills_config.newsroom</code> (the old key is rejected)</>],
+  ['broadcaster_id', <>Hard-rejected. <code>newsroom_id</code> is optional at 1.0, derived from <code>skills_config.newsroom</code> if absent</>],
   ['collaboration.version', <><code>collaboration.editing_version</code></>],
-  ['instances[]', <><b>Hard-rejected</b> since v0.3 — links and tellings model distribution instead</>],
-  ['ai_enrichments[]', <><b>Hard-rejected</b> since v0.3.2 — generative output that publishes is an <code>assets[]</code> entry with <code>provenance</code>; claims about content are <code>assertions[]</code></>],
+  ['content_ref (singular)', <><code>content_refs[]</code></>],
+  ['instances[]', <><b>Hard-rejected.</b> Distribution is modelled by links and tellings</>],
+  ['instance_ref (warning)', <><b>Hard-rejected.</b> Outputs scope through <code>scope</code>: <code>link:</code>, <code>asset:</code> or <code>story:</code></>],
+  ['ai_enrichments[]', <><b>Hard-rejected</b> since v0.3.2. Generative output that publishes is an <code>assets[]</code> entry with <code>provenance</code>; claims about content are <code>assertions[]</code></>],
+  ['media_refs[].flow_id', <><code>source</code> (<code>tams://store/id</code>) + <code>time_range</code>, or a <code>locator</code></>],
+  ['editorial_gates[].blocks as strings', <>Deprecated. Use <code>&#123; "kind": "ASSET" | "PHASE", "ref": … &#125;</code></>],
+];
+
+const WITHDRAWN: [string, string][] = [
+  ['assets[].voice_count', 'An optional integer carrying an editorial classification rule that was never settled.'],
+  ['assets[].status → FINALIZING', 'An enum member proposed for a derived output still finishing; never ratified.'],
+  ['transforms[].transform_id', 'An optional stable audit handle for a single transform; still under discussion.'],
 ];
 
 export default function Envelope() {
@@ -49,15 +64,15 @@ export default function Envelope() {
   return (
     <>
       <PageHead
-        eyebrow="Reference"
+        eyebrow="Reference · SOM 1.0"
         title="The envelope"
-        lede="One wrapper, shared by every message on every topic. It is a closed object: unknown top-level fields fail validation, and the legacy source and signature fields are hard-rejected."
+        lede="One wrapper, shared by every message in every family. It is a closed object: unknown top-level fields fail validation, and the legacy source and signature fields are rejected outright."
         toc={[
           { href: '#fields', label: 'Fields' },
-          { href: '#rules', label: 'Five rules' },
-          { href: '#paths', label: 'Field paths' },
+          { href: '#rules', label: 'Conformance rules' },
           { href: '#warning', label: 'skill.warning.raised' },
-          { href: '#renames', label: 'Renames' },
+          { href: '#migration', label: 'From v0.3.2' },
+          { href: '#retired', label: 'Renamed & retired' },
           { href: '#extensions', label: 'Extensions' },
         ]}
       />
@@ -67,122 +82,95 @@ export default function Envelope() {
           <p className="eyebrow">Anatomy</p>
           <h2>Every field, one at a time</h2>
           <p className="lede" style={{ marginBottom: 28 }}>
-            Click a key to read what it carries and where it trips people up.
+            Click a key to read what it carries and where it trips people up. Sample values follow beat 6 of the
+            specification’s worked hurricane run.
           </p>
           <FieldExplorer fields={ENVELOPE_FIELDS} samples={ENVELOPE_SAMPLES} />
+          <p className="small muted" style={{ marginTop: 16 }}>
+            Schema:{' '}
+            <a href={`${SCHEMA_BASE_URL}/envelope.schema.json`} target="_blank" rel="noreferrer">
+              <code className="url">{`${SCHEMA_BASE_URL}/envelope.schema.json`}</code> ↗
+            </a>
+          </p>
         </div>
       </section>
 
       <section id="rules">
         <div className="wrap">
-          <p className="eyebrow">Integration</p>
-          <h2>The five rules that bite</h2>
+          <p className="eyebrow">Conformance</p>
+          <h2>The floor is lower than you think</h2>
           <p className="lede">
-            Nearly every integration problem reported against SOM comes back to one of these.
+            A system is SOM 1.0 conformant if every message it publishes is a valid envelope, every payload validates
+            against the schema for its declared <code>message_type</code>, and it ignores what it doesn’t recognise.
+            A planning system that only publishes <code>story.context</code> and only reads warnings is fully
+            conformant.
           </p>
 
           <div className="grid g2" style={{ marginTop: 26 }}>
             <div className="card">
               <span className="kicker">01</span>
               <h3>
-                <code>som_version</code> is informative
+                Emit <code>"1.0.0"</code>, never branch on it
               </h3>
               <p className="small mb0">
-                It carries the <b>schema pack version</b> the payload conforms to — <code>"0.3.2"</code> today.
-                Don’t gate on it, don’t branch on it. <code>message_type</code> is what identifies the payload
-                family. Traffic recorded before 12 Aug 2026 reads <code>0.2.0</code>: that was a wire freeze,
-                since retired, and readers who took it for the payload shape concluded they were on the wrong
-                schema.
+                Producers emit the pack version they conform to; a future 1.1 producer emits <code>"1.1.0"</code>.
+                Consumers must not switch behaviour on <code>som_version</code> — that breaks at 1.1 by definition. And{' '}
+                <code>"0.3.2"</code> is not SOM 1.0: the schema leaves the field open, so a conformant consumer has to
+                apply this rule itself.
               </p>
             </div>
             <div className="card">
               <span className="kicker">02</span>
               <h3>
-                <code>correlation_id</code> is required
+                <code>message_type</code> is the only discriminator
               </h3>
               <p className="small mb0">
-                Thread it end-to-end. A downstream event must be traceable back to the story or action that caused
-                it. Skill outputs echo the inbound envelope’s id; republished story versions keep theirs.
+                Select the payload schema from it. Not from the topic, a filename, the publisher’s identity or the
+                shape of the payload.
               </p>
             </div>
             <div className="card">
               <span className="kicker">03</span>
               <h3>
-                <code>timestamp</code> lives on the envelope
+                Assert <code>format</code>
               </h3>
               <p className="small mb0">
-                Never inside the payload. There is no <code>signature</code> field either — both settled in the
-                same design decision.
+                JSON Schema treats <code>format</code> as an annotation, so most validators accept{' '}
+                <code>"message_id": "NOT-A-UUID"</code> with zero errors. Conformance requires assertion for{' '}
+                <code>uuid</code> and <code>date-time</code> — in Node, <code>ajv/dist/2020</code> plus{' '}
+                <code>ajv-formats</code>; in Python, a <code>format_checker</code> and <code>rfc3339-validator</code>.
               </p>
             </div>
             <div className="card">
               <span className="kicker">04</span>
-              <h3>
-                <code>originating_system</code>, not <code>source</code>
-              </h3>
+              <h3>Ignore what you don’t recognise</h3>
               <p className="small mb0">
-                Renamed at v0.3; the old field is hard-rejected. <code>system_id</code> and <code>system_type</code>{' '}
-                are required. The newsroom system value is <code>ncs</code> — there is no <code>newsroom</code>{' '}
-                value in the enum.
+                Unknown <code>extensions</code> keys are ignored, never grounds for rejection. A{' '}
+                <code>message_type</code> you don’t handle is ignored too — which is what lets 1.x add families without
+                breaking anyone.
               </p>
             </div>
             <div className="card">
               <span className="kicker">05</span>
-              <h3>Message types are suffixed</h3>
+              <h3>
+                <code>correlation_id</code> and <code>topic</code> are required
+              </h3>
               <p className="small mb0">
-                On the wire it is <code>skill.warning.raised</code>, not <code>skill.warning</code>;{' '}
-                <code>telling.started</code>, not <code>telling</code>. Consumers parse the suffixed form for
-                routing.
+                <code>correlation_id</code> links every message about one story lifecycle. <code>topic</code> must begin{' '}
+                <code>som.</code> — beyond that, topic layout is yours.
               </p>
             </div>
             <div className="card">
               <span className="kicker">+</span>
-              <h3>Validate before you publish</h3>
+              <h3>Say what you produce and consume</h3>
               <p className="small mb0">
-                The vendored JSON Schemas are the source of truth — not any prose description, including this page.
-                Drop your candidate payload next to the shipped examples and run the repo’s validator.
+                Implementations should state which families they publish and which they read. That statement, not the
+                size of the implementation, is what an integrator needs.{' '}
+                <a href={repoFile('spec/conformance.md')} target="_blank" rel="noreferrer">
+                  spec/conformance.md ↗
+                </a>
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="paths">
-        <div className="wrap">
-          <p className="eyebrow">Addressing</p>
-          <h2>Field paths are relative to the payload</h2>
-          <p className="lede">
-            Skill rules address fields by dot-notation path. The executor walks the path against the{' '}
-            <code>payload</code> object — never the envelope.
-          </p>
-
-          <div className="table-scroll" style={{ marginTop: 24 }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Rule config <code>field</code></th>
-                  <th>Resolves to</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td><code>headline</code></td><td><code>payload.headline</code> — string</td></tr>
-                <tr><td><code>lifecycle.phase</code></td><td><code>payload.lifecycle.phase</code> — string</td></tr>
-                <tr><td><code>compliance</code></td><td><code>payload.compliance</code> — array, checked for empty/present</td></tr>
-                <tr><td><code>priority.level</code></td><td><code>payload.priority.level</code> — string</td></tr>
-                <tr><td><code>premise.premise_changed</code></td><td><code>payload.premise.premise_changed</code> — boolean</td></tr>
-                <tr><td><code>assets[].acquisition_state</code></td><td>One array wildcard, supported by <code>field_changed</code> only</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div className="note" style={{ marginTop: 22 }}>
-            <p className="mb0">
-              Most rule types check an array field for presence or absence <em>as a whole</em>. The{' '}
-              <code>field_changed</code> type additionally supports <b>one</b> <code>[]</code> wildcard, matching
-              elements across story versions by their <code>asset_id</code> / <code>source_id</code> /{' '}
-              <code>flag_id</code> / <code>id</code>. Anything more selective — “any compliance flag of type X” —
-              means a custom rule type in the executor.
-            </p>
           </div>
         </div>
       </section>
@@ -194,69 +182,116 @@ export default function Envelope() {
             <code>skill.warning.raised</code>
           </h2>
           <p className="lede" style={{ marginBottom: 28 }}>
-            The most common outbound payload: an editorial warning raised by a skill against a story, or against
-            one surface of it. Twelve normative fields, plus the optional instance binding.
+            What a skill declared about a story, put on the bus by the executor in the tool that recalled it. Twelve
+            required fields, a closed object, and two fields explicitly forbidden.
           </p>
 
           <FieldExplorer fields={WARNING_FIELDS} samples={WARNING_SAMPLES} />
 
           <div className="grid g2" style={{ marginTop: 24, alignItems: 'start' }}>
             <div className="card">
-              <span className="kicker">Severity semantics</span>
+              <span className="kicker">Scope is the firing level</span>
               <p className="small">
-                <b>hold</b> — the executor must withhold all output on the affected fields until resolved, and
-                subscribers must not use held content.
-              </p>
-              <p className="small">
-                <b>flag</b> — mark output as requiring review; a subscriber may show a visual warning.
+                <code>link:&#123;link_id&#125;</code> for a destination-specific skill, <code>asset:&#123;asset_id&#125;</code>{' '}
+                for one asset, <code>story:&#123;story_id&#125;</code> for the whole story.
               </p>
               <p className="small mb0">
-                <b>inform</b> — advisory only. No blocking action, no mandatory response.
+                A clearance only counts at the scope the hold was declared at: a <code>link</code> clearance never lifts
+                a <code>story</code> hold.
               </p>
             </div>
             <div className="card">
-              <span className="kicker">Instance scoping</span>
-              <p className="small">
-                A story can air on several surfaces at once. When a warning applies to one of them, set{' '}
-                <code>instance_ref</code> to that <code>instance_id</code>. Omit it for story-wide warnings.
-              </p>
-              <p className="small">
-                It is <b>singular</b> on purpose: one warning, one pending row, one approve/reject per surface. Two
-                surfaces means two warnings with two ids.
-              </p>
-              <p className="small mb0 muted">
-                A warning referencing an <code>instance_id</code> that doesn’t exist should be rejected by the
-                consumer — fail closed.
+              <span className="kicker">Timestamps live on the envelope</span>
+              <p className="small mb0">
+                The warning payload rejects both <code>timestamp</code> and the retired <code>instance_ref</code>. When
+                the warning was raised is the envelope’s <code>timestamp</code>; what caused it is the envelope’s{' '}
+                <code>causation_id</code>.
               </p>
             </div>
-          </div>
-
-          <div className="note warn" style={{ marginTop: 22 }}>
-            <p className="mb0">
-              Instance scoping rides <b>in the payload</b>, never in the topic name. Do not split skill warnings
-              across <code>som.skills.staging.&#123;instance&#125;</code>-style topics.
-            </p>
           </div>
         </div>
       </section>
 
-      <section id="renames">
+      <section id="migration">
         <div className="wrap">
           <p className="eyebrow">Migration</p>
-          <h2>Renames that break old configs</h2>
+          <h2>Coming from v0.3.2</h2>
           <p className="lede">
-            If a rule config or producer predates the v0.3.x migration, these paths have moved — or gone.
+            1.0 is a clean break, and a small one: stop emitting three withdrawn fields, emit{' '}
+            <code>som_version: "1.0.0"</code>, and turn on format assertion. Every other field, type, enum and
+            constraint is unchanged.
+          </p>
+
+          <div className="table-scroll" style={{ marginTop: 24 }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Withdrawn at 1.0</th>
+                  <th>What it was</th>
+                </tr>
+              </thead>
+              <tbody>
+                {WITHDRAWN.map(([field, why]) => (
+                  <tr key={field}>
+                    <td>
+                      <code>{field}</code>
+                    </td>
+                    <td className="small">{why}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid g2" style={{ marginTop: 22, alignItems: 'start' }}>
+            <div className="card">
+              <span className="kicker">Identifiers moved</span>
+              <p className="small mb0">
+                Every schema <code>$id</code> is now a resolvable URL that serves the file, such as{' '}
+                <code className="url">{`${SCHEMA_BASE_URL}/story-context.schema.json`}</code>, stable for the life of 1.x. The old{' '}
+                <code>som.spec/schema/v0.3…</code> identifiers were never resolvable.
+              </p>
+            </div>
+            <div className="card">
+              <span className="kicker">Layout is flat</span>
+              <p className="small mb0">
+                The three version directories are gone: one file per family, no version in the filename. Anything that
+                dispatched on <code>"v0.3.2"</code> in a schema path must select on the family instead.{' '}
+                <code>authenticity_credential</code>, proposed in v0.3.2, ships in 1.0 as normative.
+              </p>
+            </div>
+          </div>
+
+          <p className="small muted" style={{ marginTop: 18 }}>
+            <a href={repoFile('spec/migration-from-v0.3.2.md')} target="_blank" rel="noreferrer">
+              spec/migration-from-v0.3.2.md ↗
+            </a>{' '}
+            ·{' '}
+            <a href={repoFile('spec/compatibility-policy.md')} target="_blank" rel="noreferrer">
+              spec/compatibility-policy.md ↗
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <section id="retired">
+        <div className="wrap">
+          <p className="eyebrow">Renamed &amp; retired</p>
+          <h2>Old paths that no longer validate</h2>
+          <p className="lede">
+            If a producer or configuration predates the v0.3 envelope lock, these have moved — or are rejected by the
+            1.0 schemas.
           </p>
           <div className="table-scroll" style={{ marginTop: 24 }}>
             <table>
               <thead>
                 <tr>
-                  <th>Old path</th>
+                  <th>Old</th>
                   <th>Now</th>
                 </tr>
               </thead>
               <tbody>
-                {RENAMES.map(([oldPath, now]) => (
+                {RETIRED.map(([oldPath, now]) => (
                   <tr key={oldPath}>
                     <td>
                       <code>{oldPath}</code>
@@ -273,40 +308,35 @@ export default function Envelope() {
       <section id="extensions">
         <div className="wrap narrow">
           <p className="eyebrow">Extensions</p>
-          <h2>The sanctioned escape hatch</h2>
+          <h2>The defined place for what the standard doesn’t carry</h2>
           <p>
-            Anything outside the canonical schema rides under{' '}
-            <code>payload.extensions["com.&#123;vendor&#125;.&#123;field&#125;"]</code>, where{' '}
-            <code>&#123;vendor&#125;</code> is the reverse-DNS short form of the broadcaster or skill author. The
-            namespace prevents collisions and keeps a clean upgrade path: anything promoted into the spec drops its
-            prefix.
+            Envelope, story and every event family accept an <code>extensions</code> object whose keys must match{' '}
+            <code>com.&#123;vendor&#125;.</code> — anything else fails validation. Consumers ignore keys they don’t
+            recognise.
           </p>
           <pre>{`{
-  "warning_id": "wrn-019536b1-0001",
-  "skill_id":   "nbcu/editorial-standards",
-  "severity":   "flag",
-  "detail":     "Informal term 'cops' in headline.",
+  "warning_id":  "0190a000-0000-7000-8000-00000000000a",
+  "skill_id":    "nbcu/editorial-standards",
+  "scope":       "link:l1",
+  "severity":    "flag",
+  "detail":      "Informal term 'cops' in headline.",
   "extensions": {
-    "com.nbcu.citations": [
-      { "source_id": "nbcu-style-guide-2026",
-        "quote": "Use 'police' or 'officers'. Avoid 'cops' in headlines." }
-    ],
-    "com.nbcu.rationale": "Term is on the Standards informal-terms list."
+    "com.nbcu.rationale": "Style guide proscribes informal register in headlines."
   }
 }`}</pre>
           <ul className="clean">
-            <li>Consumers that don’t recognise an extension key <b>must ignore it silently</b>.</li>
             <li>
-              Vendor-specific <em>enum values</em> follow a different convention: <code>x-</code> plus the lowercase
-              token, underscores preserved — <code>x-graphics_pack</code>, never <code>x-GRAPHICS_PACK</code>.
+              Vendor <em>enum values</em> use a different convention: <code>x-</code> plus a lowercase token —{' '}
+              <code>x-graphics_pack</code>. It applies to the governed-but-extensible registries such as{' '}
+              <code>asset_type</code>, <code>source_type</code> and <code>transform_type</code>.
             </li>
             <li>
-              The reference implementation uses the hatch itself, for{' '}
-              <code>com.ibc-poc.capture_complete</code> on delivery events.
+              Tags have their own vendor scheme: <code>com.&#123;vendor&#125;.&#123;name&#125;</code> alongside{' '}
+              <code>newsroom</code> and <code>iptc-mediatopic</code>.
             </li>
           </ul>
           <p className="mb0">
-            <Link to="/bus">Next: the topics these messages travel on →</Link>
+            <Link to="/bus">Next: the seven families these messages belong to →</Link>
           </p>
         </div>
       </section>

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { PageHead, PhaseStepper, useHashScroll } from '../components/Bits';
 import type { Phase } from '../components/Bits';
+import { BEHAVIOURS, PRINCIPLES } from '../data/reading';
+import { repoFile } from '../data/consortium';
 
 const PHASES: Phase[] = [
   {
@@ -10,12 +12,12 @@ const PHASES: Phase[] = [
     body: (
       <>
         <p>
-          The story exists and is being worked. Fields arrive incrementally: a premise with a confidence score,
-          early editorial sources, the first assets.
+          The story exists and is being worked. Fields arrive over successive snapshots: a <code>premise</code> with a
+          confidence, early <code>editorial_source[]</code> entries, the first assets and assertions.
         </p>
         <p className="small muted mb0">
-          Every field that arrives is another full republish, and every republish re-runs the skills. This is the
-          phase where enrichment and advisory <code>inform</code> warnings do most of their work.
+          Each change is a new full snapshot with a higher <code>sequence_number</code>. Tools reading the story
+          re-evaluate against every one.
         </p>
       </>
     ),
@@ -27,13 +29,13 @@ const PHASES: Phase[] = [
     body: (
       <>
         <p>
-          The story is considered fit to go out. This is where completeness checks earn their keep — the{' '}
-          <code>phase_with_missing_field</code> rule type exists precisely to say “the story is in <em>this</em>{' '}
-          phase and <em>that</em> field is still empty”.
+          The story is considered fit to go out. Whatever still has to be settled first is expressed as{' '}
+          <code>editorial_gates[]</code> entries whose <code>blocks[]</code> name what they hold — an asset, or a
+          lifecycle phase.
         </p>
         <p className="small muted mb0">
-          Editorial gates (<code>editorial_gates[]</code>) such as an <code>EDITORIAL_HOLD</code> are the mechanism
-          for holding a story here deliberately.
+          A gate is <code>PENDING</code>, <code>APPROVED</code> or <code>REJECTED</code>. Gates combine by
+          conjunction: every binding gate must permit.
         </p>
       </>
     ),
@@ -45,13 +47,12 @@ const PHASES: Phase[] = [
     body: (
       <>
         <p>
-          The story is live and moving fast — and it is where the safety properties of the model matter most. A
-          missing <code>compliance</code> block on a story at <code>priority.level: URGENT</code> is exactly the
-          shape one of the reference seed scenarios is built to expose.
+          The story is live and moving fast — exactly when figures are unconfirmed and holds matter most. Speed comes
+          from every tool seeing the same state at once, not from skipping a gate.
         </p>
         <p className="small muted mb0">
-          Nothing about “breaking” loosens the approval gate. Speed comes from skills surfacing the right thing
-          quickly, not from skipping the human.
+          Priority is separate from phase: <code>priority.level</code> runs <code>ROUTINE</code>,{' '}
+          <code>STANDARD</code>, <code>HIGH</code>, <code>URGENT</code>, <code>FLASH</code>.
         </p>
       </>
     ),
@@ -63,12 +64,12 @@ const PHASES: Phase[] = [
     body: (
       <>
         <p>
-          The story has gone out. It does not stop moving — corrections, new media arrivals and distribution events
-          keep producing republishes, and skills keep re-running against each one.
+          The story has gone out, and it keeps moving: corrections, new media arrivals and distribution events all
+          produce new snapshots and events.
         </p>
         <p className="small muted mb0">
-          Post-publication is where the distribution layer carries the weight: Links commit assets to destinations,
-          Tellings record on-air exposure, and the audit topic keeps the trail.
+          After publication the distribution families carry the weight: links commit assets to destinations, tellings
+          record exposure, and the audit family keeps the trail.
         </p>
       </>
     ),
@@ -76,22 +77,21 @@ const PHASES: Phase[] = [
 ];
 
 const GLOSSARY: [string, React.ReactNode][] = [
-  ['Story', <>The editorial unit; published as full <code>story.context</code> snapshots, keyed by <code>story_id</code>.</>],
-  ['Asset', <>A piece of content on a story (video, script, graphic) with editorial <code>status</code> and, for media, <code>media_refs[]</code> + <code>acquisition_state</code>.</>],
-  ['Source (TAMS)', <>The stable editorial idea of a piece of media (<code>tams://store/id</code>); a Flow is one technical rendition of it. SOM references Sources, never Flows.</>],
-  ['Delivery', <>The availability handshake: media became reachable in a store (<code>delivery.media_available</code>).</>],
-  ['Link', <>An Asset-to-Destination commitment, with a per-destination compliance gate.</>],
-  ['Telling', <>An on-air exposure event; on-air state is derived from Tellings, never stored on the asset.</>],
-  ['Skill', <>A passive, data-driven newsroom automation; the executor runs it.</>],
-  ['Story Agent', <>One agent per story, persistent from tip-off through distribution: it follows the story across tools, tracks change, and records interactions to an auditable trail.</>],
-  ['Executor', <>The process that watches the bus, decides which skills apply, and runs their rules against each snapshot.</>],
-  ['Advert', <>A skill’s machine-readable declaration of what it operates on, fires on, and produces.</>],
-  ['Recall', <>The executor’s deterministic advert-matching step — deciding which skills run.</>],
-  ['Staging', <>The pre-approval topic; nothing reaches the production bus without a human decision.</>],
-  ['Safe-state stop', <>When the correct action is unclear, do nothing and record the non-action (<code>WITHHELD</code> on <code>som.system.audit</code>).</>],
-  ['Envelope', <>The outer wrapper every SOM message shares; the payload inside is what schemas validate.</>],
-  ['Extension', <><code>payload.extensions["com.&#123;vendor&#125;.&#123;field&#125;"]</code> — the sanctioned place for not-yet-ratified fields.</>],
-  ['Instance', <>One surface a story airs on — linear newscast, web live-blog, social card — identified by <code>instance_id</code>.</>],
+  ['Story', <>The happening in the world, held as a context its publisher owns and asserts. Published as full <code>story.context</code> snapshots keyed by an immutable <code>story_id</code>.</>],
+  ['Asset', <>A discrete piece of media or editorial work on a story, classified by evidential position (<code>PRIMARY</code> / <code>SECONDARY</code> / <code>TERTIARY</code>). Exists whether or not anything is published from it.</>],
+  ['Telling', <>The moment an asset meets an audience through a destination, with immutable <code>exposure_start</code> / <code>exposure_end</code>. On-air state is derived from tellings.</>],
+  ['Link', <>An asset committed to a destination, with a compliance gate per destination (<code>PENDING</code> / <code>CLEARED</code> / <code>BLOCKED</code>).</>],
+  ['Source (TAMS)', <>Media addressed as <code>tams://store/id</code> plus an optional time range. SOM references Sources, never Flows.</>],
+  ['Locator', <>A non-TAMS media reference: <code>store</code> + <code>ref</code>. A MAM path, an object key, a CMS id.</>],
+  ['Assertion', <>A claim about a story, asset, link or telling — <code>FACT_CHECK</code>, <code>DETECTION</code> or <code>MATCH</code> — with provenance and a review state. The authoritative home of a confirmed fact.</>],
+  ['Provenance', <>Who or what authored an output: <code>HUMAN</code> or <code>MODEL</code>. Authorship-general, never AI-keyed.</>],
+  ['Editorial gate', <>Something that must be settled before an asset or phase proceeds. <code>PENDING</code> / <code>APPROVED</code> / <code>REJECTED</code>.</>],
+  ['Orphan', <>A minimal shell story (<code>story_type: ORPHAN</code>) minted to hold a clip that arrived with no story, until a proposed match is confirmed.</>],
+  ['Skill', <>A passive rule file in the agentskills.io shape. It declares; it never acts, and never changes content.</>],
+  ['Executor', <>The part of a vendor tool that recalls skills, publishes their warnings and decides what the tool withholds. Tools have executors; newsrooms do not have a central one.</>],
+  ['Configured instance', <>One generic skill file with one house’s values loaded, watching one condition. A house runs several off the same file.</>],
+  ['Story Archaeology', <>The method behind the model: trace one real story after transmission and record how its context actually moved.</>],
+  ['Extension', <><code>extensions["com.&#123;vendor&#125;.&#123;field&#125;"]</code> — the defined place for fields the standard doesn’t carry. Unknown keys are ignored.</>],
 ];
 
 export default function Concepts() {
@@ -101,26 +101,27 @@ export default function Concepts() {
     <>
       <PageHead
         eyebrow="Concepts"
-        title="SOM in five minutes"
-        lede="The whole model is four ideas: stories are snapshots, skills are data, decisions are human, and non-actions are recorded."
+        title="SOM in ten minutes"
+        lede="Three nouns, one snapshot, and a handful of rules about who writes and who decides. Learn these and the schemas read themselves."
         toc={[
-          { href: '#objects', label: 'The objects' },
+          { href: '#nouns', label: 'Story · Asset · Telling' },
           { href: '#snapshots', label: 'Snapshots' },
           { href: '#lifecycle', label: 'Lifecycle' },
-          { href: '#skills', label: 'Skills & recall' },
-          { href: '#boundary', label: 'The boundary' },
-          { href: '#gate', label: 'The gate' },
-          { href: '#safestate', label: 'Safe-state' },
+          { href: '#evidence', label: 'Evidence & claims' },
+          { href: '#gates', label: 'Gates & audit' },
+          { href: '#skills', label: 'Declare, then act' },
+          { href: '#principles', label: 'Principles' },
           { href: '#glossary', label: 'Glossary' },
         ]}
       />
 
-      <section id="objects">
+      <section id="nouns">
         <div className="wrap">
-          <p className="eyebrow">The objects</p>
-          <h2>What SOM actually models</h2>
+          <p className="eyebrow">The three nouns</p>
+          <h2>Story, Asset, Telling</h2>
           <p className="lede">
-            Seven nouns carry almost everything. Learn these and the message contracts read themselves.
+            A story is a real-world event: it grows, splits and changes direction, and nobody knows its shape until
+            it’s over. Mapping that onto a schema came down to three words journalists already use.
           </p>
 
           <div className="grid g3" style={{ marginTop: 28 }}>
@@ -128,58 +129,38 @@ export default function Concepts() {
               <div className="lane-icon">S</div>
               <h3>Story</h3>
               <p className="small">
-                The editorial unit, keyed by a stable <code>story_id</code>. Published as full{' '}
-                <code>story.context</code> snapshots carrying headline, lifecycle phase, compliance flags,
-                editorial sources, assets and gates.
+                The happening. What it is about (<code>tags[]</code>, <code>story_meaning</code>), where it has got to
+                (<code>lifecycle</code>, <code>priority</code>), what the newsroom expects (<code>premise</code>), its
+                sources and their credibility, and the gates and compliance flags standing on it.
+              </p>
+              <p className="small muted mb0">
+                <code>story_type</code>: <code>PLANNED</code>, <code>ACTIVE</code>, <code>KILLED</code>,{' '}
+                <code>SPIKED</code>, <code>ARCHIVED</code>, <code>ORPHAN</code>.
               </p>
             </div>
             <div className="card">
               <div className="lane-icon">A</div>
               <h3>Asset</h3>
               <p className="small">
-                A piece of content on a story — video, script, graphic — with an editorial <code>status</code> and,
-                for media, <code>media_refs[]</code> plus an <code>acquisition_state</code>.
+                What the newsroom gathers and makes: <code>VIDEO</code>, <code>SCRIPT</code>, <code>GRAPHIC</code>,{' '}
+                <code>TRANSCRIPT</code>, and generative outputs such as <code>SUMMARY</code> and{' '}
+                <code>SOCIAL_POST</code>. References only — media stays in its store.
+              </p>
+              <p className="small muted mb0">
+                <code>status</code> is editorial only: <code>READY</code>, <code>IN_PRODUCTION</code>,{' '}
+                <code>PREPARED</code>, <code>INVALIDATED</code>. “Live” and “aired” are never stored here.
               </p>
             </div>
             <div className="card">
-              <div className="lane-icon">◉</div>
-              <h3>Source (TAMS)</h3>
-              <p className="small">
-                The stable editorial idea of a piece of media, addressed as <code>tams://store/id</code>. A{' '}
-                <em>Flow</em> is one technical rendition of it — SOM references Sources, never Flows.
-              </p>
-            </div>
-            <div className="card">
-              <div className="lane-icon">⚙</div>
-              <h3>Skill</h3>
-              <p className="small">
-                A passive, data-driven newsroom automation. It declares what it operates on, the executor decides
-                when it runs, and its outputs are proposals — never actions.
-              </p>
-            </div>
-            <div className="card">
-              <div className="lane-icon">◎</div>
-              <h3>Story Agent</h3>
-              <p className="small">
-                One per story, persistent from tip-off through distribution. It follows the story across every tool
-                it touches, tracks what changed, asks the rest of the stack what is happening, and records every
-                interaction to an auditable trail.
-              </p>
-            </div>
-            <div className="card">
-              <div className="lane-icon">→</div>
-              <h3>Link</h3>
-              <p className="small">
-                An Asset-to-Destination commitment, with a compliance gate evaluated <b>per destination</b>. The
-                same asset can be cleared for digital and blocked for broadcast at the same moment.
-              </p>
-            </div>
-            <div className="card">
-              <div className="lane-icon">◐</div>
+              <div className="lane-icon">T</div>
               <h3>Telling</h3>
               <p className="small">
-                An on-air exposure event. On-air state is <em>derived</em> from Tellings and never stored on the
-                asset — because the same asset can be on air in more than one place at once.
+                An asset meeting an audience through a destination. It follows a <b>link</b> — the commitment of that
+                asset to that destination — and records when exposure started and ended.
+              </p>
+              <p className="small muted mb0">
+                The compliance position belongs to the telling. The same asset can be cleared on one link and blocked
+                on another at the same moment.
               </p>
             </div>
           </div>
@@ -188,41 +169,41 @@ export default function Concepts() {
 
       <section id="snapshots">
         <div className="wrap">
-          <p className="eyebrow">Snapshots, not deltas</p>
-          <h2>A story is republished in full, every time it changes</h2>
+          <p className="eyebrow">Snapshots, never deltas</p>
+          <h2>A story is published whole, every time</h2>
 
           <div className="grid g2" style={{ marginTop: 24, alignItems: 'start' }}>
             <div>
               <ul className="clean">
                 <li>
-                  <code>sequence_number</code> increments and <code>updated_at</code> moves on every republish.
+                  <code>story_id</code> is immutable. A revision is the next snapshot, not a new story.
                 </li>
                 <li>
-                  Consumers keep the <b>latest version per <code>story_id</code></b>. There are no deltas to apply
-                  and no ordering puzzle to solve.
+                  <code>sequence_number</code> MUST increase and <code>updated_at</code> MUST move forward.
                 </li>
                 <li>
-                  Each republish gets a fresh <code>message_id</code> and <code>timestamp</code>, but keeps the same{' '}
-                  <code>correlation_id</code>.
+                  Whoever publishes re-stamps <code>originating_system</code>, so a correction is attributed to the
+                  corrector, not to whoever first minted the story.
                 </li>
-                <li>Skills re-run on <b>every</b> new version — which is what makes change detection possible.</li>
                 <li>
-                  A consumer that joins late replays the story topic from the earliest retained offset. There is no
-                  story query API; resolution is stream-first by design.
+                  One writer mints: the publisher’s story management system owns the story and its sequence — never the
+                  wire, even on a flash.
+                </li>
+                <li>
+                  A tool that joins late, restarts or reconnects after an outage reads one object and is current.
                 </li>
               </ul>
             </div>
             <div className="card">
-              <span className="kicker">Consequence</span>
-              <h3>Change rules stay quiet on first sighting</h3>
+              <span className="kicker">The most damaging error</span>
+              <h3>Omission means absent, not unchanged</h3>
               <p className="small">
-                A rule of type <code>field_changed</code> compares the new snapshot against the previous version
-                the executor saw. On the first sighting of a story — including right after a restart — there is
-                nothing to compare against, so it does not fire.
+                A producer MUST NOT leave out fields it didn’t modify. A writer that sends only its own fields silently
+                erases every other system’s work on the story.
               </p>
               <p className="small mb0">
-                This trips people up constantly. If a change rule “never fires”, republish the story once so there
-                is a baseline, then trigger the transition.
+                The specification ships <code>tools/validate_sequence.py</code> to check a run of snapshots for exactly
+                these properties — the bugs no single message can reveal.
               </p>
             </div>
           </div>
@@ -232,208 +213,185 @@ export default function Concepts() {
       <section id="lifecycle">
         <div className="wrap">
           <p className="eyebrow">Story lifecycle</p>
-          <h2>Four phases, one direction</h2>
+          <h2>Four phases, only on active stories</h2>
           <p className="lede" style={{ marginBottom: 26 }}>
-            Only stories with <code>story_type: ACTIVE</code> carry a <code>lifecycle</code> block — that is a
-            schema rule, not a convention. Select a phase to see what it means on the bus.
+            A <code>lifecycle</code> block is required when <code>story_type</code> is <code>ACTIVE</code> and
+            forbidden otherwise — a schema rule, not a convention. Select a phase.
           </p>
 
           <PhaseStepper phases={PHASES} />
 
           <div className="note" style={{ marginTop: 24 }}>
             <p className="mb0">
-              <b>Threading it together.</b> <code>correlation_id</code> ties every message about one story lifecycle
-              — inbound snapshots, skill runs, staged warnings, decisions, audit records. Follow one id through the
-              bus and you have the complete history of that story, in order, across every participant.
+              <b>Orphans.</b> A clip that arrives with no story gets a minimal <code>ORPHAN</code> shell story to hold
+              it, carrying a <code>MATCH</code> assertion that proposes the real story. On confirmation the clip moves —
+              same <code>asset_id</code>, original timestamps — and the shell always retires to <code>ARCHIVED</code>.
+              It is never deleted, and consumers filter orphans out with one <code>story_type</code> predicate.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="evidence">
+        <div className="wrap">
+          <p className="eyebrow">Evidence &amp; claims</p>
+          <h2>Where things came from, and what is being claimed</h2>
+
+          <div className="grid g3" style={{ marginTop: 26, alignItems: 'start' }}>
+            <div className="card">
+              <span className="kicker">editorial_source[]</span>
+              <h3>Sources and credibility</h3>
+              <p className="small mb0">
+                Each source carries a type (<code>WIRE</code>, <code>OFFICIAL</code>, <code>USER_GENERATED</code>, …)
+                and a declared <code>credibility</code>: <code>TRUSTED</code>, <code>VERIFIED</code>,{' '}
+                <code>ENDORSED</code> or <code>UNVERIFIED</code>. Credibility is a different axis from media
+                authenticity.
+              </p>
+            </div>
+            <div className="card">
+              <span className="kicker">assets[].provenance</span>
+              <h3>Authorship</h3>
+              <p className="small mb0">
+                <code>HUMAN</code> or <code>MODEL</code>, with model and version only for models. A C2PA{' '}
+                <code>authenticity_credential</code> records <code>present: false</code> rather than hiding its
+                absence. Confidence is optional — don’t invent one for free text.
+              </p>
+            </div>
+            <div className="card">
+              <span className="kicker">assertions[]</span>
+              <h3>Claims under review</h3>
+              <p className="small mb0">
+                <code>FACT_CHECK</code> (a metric and value), <code>DETECTION</code> or <code>MATCH</code>, each with a{' '}
+                <code>review</code> of <code>PENDING</code>, <code>CONFIRMED</code> or <code>REJECTED</code>. Rejected
+                entries are marked, never deleted. On any disagreement, the assertion wins.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="gates">
+        <div className="wrap">
+          <p className="eyebrow">Gates &amp; audit</p>
+          <h2>Nothing reaches an audience without an editorial gate</h2>
+          <p className="lede">
+            A skill declares, the tool that owns the executor decides, and a person approves. A clearance is granted to
+            a version of the words, so a rewrite reopens the gate rather than inheriting the approval.
+          </p>
+
+          <div className="grid g3" style={{ marginTop: 26 }}>
+            <div className="card sev hold">
+              <h3>hold</h3>
+              <p className="small mb0">
+                The executor MUST withhold output on the affected fields. Released only by a clearance on the same
+                scope — not by time passing, and not by the flag vanishing from a later snapshot.
+              </p>
+            </div>
+            <div className="card sev flag">
+              <h3>flag</h3>
+              <p className="small mb0">Mark for review. A tool may show it; nothing is withheld because of it alone.</p>
+            </div>
+            <div className="card sev inform">
+              <h3>inform</h3>
+              <p className="small mb0">Advisory only. No blocking action and no mandatory response.</p>
+            </div>
+          </div>
+
+          <div className="grid g2" style={{ marginTop: 22, alignItems: 'start' }}>
+            <div className="card">
+              <span className="kicker">Conjunction</span>
+              <p className="small mb0">
+                Where several gates bind the same fact on the same telling, it is served only when <b>every</b> gate
+                permits — any one hold means held. “Most restrictive wins” and “story owner takes precedence” were
+                withdrawn in favour of this. Compliance fails closed, and a transform — trim, crop, caption burn —
+                never lifts a hold.
+              </p>
+            </div>
+            <div className="card">
+              <span className="kicker">som.system.audit</span>
+              <p className="small mb0">
+                The governance trail. An <code>action</code> of <code>CLEARED</code>, <code>SUPPRESSED</code>,{' '}
+                <code>WITHHELD</code> or <code>OVERRIDDEN</code>, against a <code>LINK</code>, <code>ASSET</code> or{' '}
+                <code>TELLING</code>, with an actor and a reason. A suppression targets the held asset, because the
+                branch that never airs never gets a link.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       <section id="skills">
         <div className="wrap">
-          <p className="eyebrow">Skills &amp; recall</p>
-          <h2>The executor decides what runs — deterministically</h2>
-
-          <div className="grid g2" style={{ marginTop: 24, alignItems: 'start' }}>
-            <div className="card">
-              <span className="kicker">Advert</span>
-              <h3>A skill declares itself</h3>
-              <p className="small">
-                Every skill ships a machine-readable <b>advert</b>: what it <code>operates_on</code>, what it{' '}
-                <code>fires_on</code>, and what it <code>produces</code>. It is a claim, and the executor holds you
-                to it.
-              </p>
-              <pre>{`"advert": {
-  "role": "compliance check",
-  "operates_on": ["story.context"],
-  "produces": ["skill.warning.raised"],
-  "fires_on": ["headline", "assets[].acquisition_state"]
-}`}</pre>
-              <p className="small mb0 muted">
-                If <code>operates_on</code> doesn’t include <code>story.context</code>, the executor skips the skill
-                entirely — and says so in the log, once. That is the single most common reason a new skill “never
-                runs”.
-              </p>
-            </div>
-            <div className="card">
-              <span className="kicker">Recall</span>
-              <h3>Matching, not guessing</h3>
-              <p className="small">
-                <b>Recall</b> is the executor’s step of deciding which skills apply to an incoming message. It is
-                deterministic advert matching — no model, no heuristics, no ranking.
-              </p>
-              <p className="small">
-                That matters for a newsroom: the set of checks that ran against a story is reproducible,
-                explainable and auditable after the fact. Each execution produces a <code>skill.run.completed</code>{' '}
-                record with latency, what it read, and what it emitted.
-              </p>
-              <p className="small mb0">
-                A skill is <b>passive</b>. It observes a snapshot and proposes. It cannot mutate the story, and it
-                cannot reach the production bus.
-              </p>
-            </div>
-          </div>
-          <p style={{ marginTop: 22 }}>
-            <Link to="/skills">The seven rule types, skill anatomy and the validation layers →</Link>
-          </p>
-        </div>
-      </section>
-
-      <section id="boundary">
-        <div className="wrap">
-          <p className="eyebrow">The boundary</p>
-          <h2>What belongs in SOM, and what doesn’t</h2>
-          <p className="lede">
-            This is the live argument in the standard, and the one worth understanding before you model anything.
-          </p>
+          <p className="eyebrow">Declare, then act</p>
+          <h2>SOM carries context. Skills carry knowledge.</h2>
 
           <div className="grid g2" style={{ marginTop: 26, alignItems: 'start' }}>
             <div className="card">
-              <span className="kicker">SOM — the common shape</span>
-              <p className="small">
-                The structure that can travel across organisations, vendors and story types. What a story is, what
-                changed, what state it is in, how things relate.
-              </p>
+              <span className="kicker">The standard — shared</span>
               <p className="small mb0">
-                It carries editorial context and <b>interprets none of it</b>. SOM holds no intelligence — the
-                intelligence stays inside each vendor’s own tools.
+                What a story is, what state it’s in, what’s held and what’s cleared, where material came from. The same
+                everywhere, and carrying no judgement of its own.
               </p>
             </div>
             <div className="card">
-              <span className="kicker">Skills — the logic</span>
-              <p className="small">
-                Editorial standards, compliance rules, show formats, institutional practice. The things that
-                legitimately differ between one newsroom and the next.
-              </p>
+              <span className="kicker">Skills — the house’s</span>
               <p className="small mb0">
-                A broadcaster’s election coverage and an entertainment show can use the same model and apply it
-                very differently. Written once, as portable configuration that agents in different systems can
-                read.
+                Editorial standards, compliance rules, institutional practice: what legitimately differs from one
+                newsroom to the next. The framework is open; your workflow stays yours, and no vendor needs a copy of
+                your policy.
               </p>
             </div>
           </div>
 
-          <div className="note warn" style={{ marginTop: 24 }}>
+          <div className="note" style={{ marginTop: 22 }}>
             <p className="mb0">
-              <b>Why the line is hard.</b> Draw it too broadly and the standard becomes rigid — every newsroom’s
-              particular habits baked into something meant to be shared. Draw it too narrowly and it becomes too
-              thin to be worth adopting. The project’s own working view is that the shared layer may end up{' '}
-              <i>smaller</i> than people expect, and that this is fine: a useful common model doesn’t have to
-              capture everything, only the right things.
-            </p>
-          </div>
-
-          <div className="note" style={{ marginTop: 16 }}>
-            <p className="mb0">
-              <b>Status, honestly.</b> The line being drawn today may move once vendors start building against it.
-              The public draft specification is due at IBC in September 2026; what this site documents is the
-              schema pack and reference implementation as they stand, not a ratified standard. Treat the vendored
-              schemas as the source of truth and expect the model to keep moving.
+              <b>Silence is a valid outcome.</b> A skill that finds nothing to declare says nothing, and a tool proves it
+              read the story only by publishing in its turn. That is also why the audit trail is a by-product of how
+              writes work rather than a feature somebody bolted on. <Link to="/skills">How recall works →</Link>
             </p>
           </div>
         </div>
       </section>
 
-      <section id="gate">
+      <section id="principles">
         <div className="wrap">
-          <p className="eyebrow">The approval gate</p>
-          <h2>Nothing reaches production without a decision</h2>
+          <p className="eyebrow">Principles</p>
+          <h2>Why SOM is shaped the way it is</h2>
           <p className="lede">
-            This is the core safety pattern of the standard, and it is structural — an executor has no path to the
-            production topic at all.
+            Six working principles open the specification, and they are the test any future change must pass.
           </p>
 
-          <div className="grid g3" style={{ marginTop: 26 }}>
-            <div className="card sev hold">
-              <h3>hold</h3>
-              <p className="small">
-                The executor must withhold all output on the affected fields until the warning is resolved;
-                subscribers must not use held content.
-              </p>
-              <p className="small mb0 muted">
-                In the reference dashboard, <code>hold</code> lands red and cannot be cleared with a single click.
-              </p>
-            </div>
-            <div className="card sev flag">
-              <h3>flag</h3>
-              <p className="small">Output is marked as requiring review. Subscribers may display a visual warning.</p>
-              <p className="small mb0 muted">Lands yellow with a standard approve / reject.</p>
-            </div>
-            <div className="card sev inform">
-              <h3>inform</h3>
-              <p className="small">
-                Advisory only — no blocking action, no mandatory response from any subscriber.
-              </p>
-              <p className="small mb0 muted">Lands blue and auto-clears once acknowledged.</p>
-            </div>
+          <div className="grid g3" style={{ marginTop: 28 }}>
+            {PRINCIPLES.map((p, i) => (
+              <div className="card" key={p.title}>
+                <span className="kicker">{String(i + 1).padStart(2, '0')}</span>
+                <h3>{p.title}</h3>
+                <p className="small mb0">{p.body}</p>
+              </div>
+            ))}
           </div>
 
-          <div className="grid g2" style={{ marginTop: 22, alignItems: 'start' }}>
-            <div className="card">
-              <span className="kicker">On approve</span>
-              <p className="small mb0">
-                The payload is republished to <code>som.skills.events</code> in a <b>fresh, gate-attributed
-                envelope</b> — new <code>message_id</code> and <code>timestamp</code>, <code>causation_id</code>{' '}
-                pointing at the staged message. The reviewer and time ride in <code>payload.extensions</code>, and a{' '}
-                <code>CLEARED</code> record lands on <code>som.system.audit</code>.
-              </p>
-            </div>
-            <div className="card">
-              <span className="kicker">On reject</span>
-              <p className="small mb0">
-                Same shape, to <code>som.skills.rejected</code>, with the rejecting reviewer in extensions and a{' '}
-                <code>WITHHELD</code> audit record. A reject is not a deletion — it is a terminal non-action,
-                recorded as one.
-              </p>
-            </div>
+          <h3 style={{ marginTop: 40, textAlign: 'center' }}>How it behaves</h3>
+          <div className="grid g4" style={{ marginTop: 18 }}>
+            {BEHAVIOURS.map((b) => (
+              <div className="card" key={b.title}>
+                <h3>{b.title}</h3>
+                <p className="small mb0">{b.body}</p>
+              </div>
+            ))}
           </div>
-        </div>
-      </section>
 
-      <section id="safestate">
-        <div className="wrap narrow">
-          <p className="eyebrow">Safe-state stop</p>
-          <h2>Doing nothing is a result, and it gets written down</h2>
-          <p>
-            When the correct action is unclear, a SOM participant does nothing — and <em>records</em> the
-            non-action as <code>WITHHELD</code> on <code>som.system.audit</code>. This is the rule that keeps an
-            automated newsroom honest: silence and refusal look identical from the outside unless refusal is
-            logged.
-          </p>
-          <div className="note warn">
+          <div className="note" style={{ marginTop: 24 }}>
             <p className="mb0">
-              <b>The canonical example.</b> A media store announces that a clip has arrived, and the clip’s{' '}
-              <code>asset_id</code> matches no story on the bus. The reference coordinator re-checks for about a
-              second, then stops: it does <b>not</b> invent a story, and it does <b>not</b> drop the event
-              silently. It writes a <code>WITHHELD</code> audit record and moves on. Creating a story from
-              unmatched media is a separate, explicitly opt-in preview lane.
+              <b>Where the standard stops.</b> SOM describes one story and everything true about it, and nothing more.
+              What each newsroom does with what it reads is its own business. 1.0 is a commitment to stability, not a
+              claim of completeness: what isn’t settled is written down in the{' '}
+              <a href={repoFile('spec/open-register.md')} target="_blank" rel="noreferrer">
+                open register ↗
+              </a>
+              .
             </p>
           </div>
-          <p className="mb0">
-            The same vocabulary covers human decisions: an editor’s reject is a <code>WITHHELD</code> too. One audit
-            topic, one grammar, whether the non-action came from a machine or a person.
-          </p>
         </div>
       </section>
 
@@ -461,6 +419,12 @@ export default function Concepts() {
               </tbody>
             </table>
           </div>
+          <p className="small muted" style={{ marginTop: 16 }}>
+            The full glossary lives in the specification:{' '}
+            <a href={repoFile('spec/glossary.md')} target="_blank" rel="noreferrer">
+              spec/glossary.md ↗
+            </a>
+          </p>
         </div>
       </section>
 
@@ -468,14 +432,14 @@ export default function Concepts() {
         <div className="wrap center">
           <h2>Next: the wire format</h2>
           <p className="lede" style={{ margin: '0 auto 24px' }}>
-            Every message shares one envelope. Here is every field in it, and the five rules that bite integrators.
+            Every message shares one envelope. Here is every field, and what conformance asks of it.
           </p>
           <div className="btn-row" style={{ justifyContent: 'center' }}>
             <Link className="btn primary" to="/envelope">
               The envelope →
             </Link>
             <Link className="btn" to="/bus">
-              Topics &amp; the bus
+              The seven families
             </Link>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import type { Faq } from '../data/topics';
+import type { Faq } from '../data/faq';
 
 /**
  * Scrolls to the element named by the URL hash once the page has rendered, or

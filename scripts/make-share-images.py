@@ -197,14 +197,14 @@ def make_og(width: int, height: int, path: str, square: bool = False) -> None:
         d.text((pad, y), text, font=f_sub, fill=FG_2, anchor="ls")
         y += int((27 if not square else 29) * 1.45) * SS
 
-    # --- footer rule + proposers
+    # --- footer rule + status
     rule_y = (height - (96 if not square else 118)) * SS
     d.line((pad, rule_y, width * SS - pad, rule_y), fill=LINE, width=max(1, SS))
 
     f_foot = font(23 if not square else 25)
     d.text(
         (pad, rule_y + (44 if not square else 52) * SS),
-        "Proposed by AP · NBCUniversal · ITN · BBC",
+        "SOM 1.0 · open and unowned · an unofficial guide",
         font=f_foot,
         fill=FG_3,
         anchor="ls",

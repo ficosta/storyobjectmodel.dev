@@ -1,147 +1,234 @@
 import { Link } from 'react-router-dom';
 import { PageHead, useHashScroll } from '../components/Bits';
-import { RULE_TYPES } from '../data/topics';
+import { CATEGORY_X, GUARANTEES, LIBRARY, LIBRARY_VERSION } from '../data/skills';
+import { AGENTSKILLS_URL, repoDir, repoFile } from '../data/consortium';
 
 export default function Skills() {
   useHashScroll();
 
+  const published = LIBRARY.filter((s) => !s.proposed);
+  const proposed = LIBRARY.filter((s) => s.proposed);
+
   return (
     <>
       <PageHead
-        eyebrow="Reference"
+        eyebrow="Reference · som-skill-library"
         title="Skills"
-        lede="A skill is data, not code: one JSON file the executor interprets. It declares what it operates on, states its rules, and proposes — it never acts."
+        lede="SOM carries context; Skills carry knowledge. A skill is a rule written once, by editorial, readable by every tool. It declares what is true — the tool that owns the executor is the only thing that acts."
         toc={[
+          { href: '#model', label: 'Declare, not act' },
           { href: '#anatomy', label: 'Anatomy' },
-          { href: '#rules', label: 'Rule types' },
-          { href: '#validation', label: 'Validation' },
-          { href: '#loop', label: 'Iteration loop' },
-          { href: '#pitfalls', label: 'Pitfalls' },
+          { href: '#library', label: 'The library' },
+          { href: '#combine', label: 'Combining holds' },
+          { href: '#checks', label: 'Validation' },
+          { href: '#open', label: 'What’s open' },
         ]}
       />
 
-      <section id="anatomy">
+      <section id="model">
         <div className="wrap">
-          <p className="eyebrow">Anatomy</p>
-          <h2>One file, four parts</h2>
+          <p className="eyebrow">The model</p>
+          <h2>Skills declare. Executors act.</h2>
 
-          <div className="grid g2" style={{ marginTop: 24, alignItems: 'start' }}>
-            <div>
-              <pre>{`{
-  "id": "acme/my-skill",
-  "version": "0.1.0",
-  "name": "Acme Example Skill",
-  "description": "What it checks and why.",
-  "skill_type": "VENDOR",
-  "disclosure_level": "L2",
-  "migration_policy": "GATED",
-
-  "reads":    ["headline", "assets"],
-  "produces": ["skill.warning.raised",
-               "skill.run.completed"],
-
-  "advert": {
-    "role": "compliance check",
-    "operates_on": ["story.context"],
-    "produces": ["skill.warning.raised"],
-    "fires_on": ["headline",
-                 "assets[].acquisition_state"]
-  },
-
-  "rules": [
-    {
-      "rule_id": "acme-style-001",
-      "type": "term_match",
-      "config": {
-        "field": "headline",
-        "terms": ["cops", "slammed"]
-      },
-      "default_severity": "flag",
-      "affected_fields": ["headline"],
-      "detail_template":
-        "Informal term '{term}' in {field}."
-    }
-  ]
-}`}</pre>
+          <div className="grid g3" style={{ marginTop: 26 }}>
+            <div className="card">
+              <div className="lane-icon">1</div>
+              <h3>The skill declares</h3>
+              <p className="small mb0">
+                A skill file states a condition and what is true when it holds — a flag stands, a hold applies, an
+                enrichment is warranted. It never runs anything, never writes story state, and never changes content.
+              </p>
             </div>
-            <div>
-              <div className="card" style={{ marginBottom: 16 }}>
-                <span className="kicker">1 · Identity</span>
-                <p className="small mb0">
-                  <code>id</code> in <code>vendor/skill-name</code> form, a semver <code>version</code>, and the
-                  governance triple: <code>skill_type</code>, <code>disclosure_level</code>,{' '}
-                  <code>migration_policy</code>.
-                </p>
-              </div>
-              <div className="card" style={{ marginBottom: 16 }}>
-                <span className="kicker">2 · Advert</span>
-                <p className="small mb0">
-                  The machine-readable claim. <b>If <code>operates_on</code> doesn’t include{' '}
-                  <code>story.context</code>, the executor skips your skill entirely</b> — and logs exactly that,
-                  once, at information level. Check the app log before debugging anything else.
-                </p>
-              </div>
-              <div className="card" style={{ marginBottom: 16 }}>
-                <span className="kicker">3 · Rules</span>
-                <p className="small mb0">
-                  Each has a <code>rule_id</code>, a <code>type</code>, a <code>config</code>, a{' '}
-                  <code>default_severity</code>, its <code>affected_fields</code>, and a{' '}
-                  <code>detail_template</code> with <code>&#123;placeholder&#125;</code> substitutions.
-                </p>
-              </div>
-              <div className="card">
-                <span className="kicker">4 · Severity</span>
-                <p className="small mb0">
-                  <code>hold</code> / <code>flag</code> / <code>inform</code>, lower-case. One of only two
-                  deliberate exceptions to SOM’s UPPER_SNAKE enum convention — the other being <code>x-</code> and{' '}
-                  <code>com.&#123;vendor&#125;</code> extension values.
-                </p>
-              </div>
+            <div className="card">
+              <div className="lane-icon">2</div>
+              <h3>The executor recalls</h3>
+              <p className="small mb0">
+                Executors live inside vendor tools. Each matches incoming messages against skill <b>adverts</b> — the
+                machine-read <code>recall</code> block — and publishes what the skill declares as{' '}
+                <code>skill.warning.raised</code>.
+              </p>
+            </div>
+            <div className="card">
+              <div className="lane-icon">3</div>
+              <h3>The tool acts</h3>
+              <p className="small mb0">
+                The MAM keeps a held asset uncommittable, playout refuses the take, the CMS holds one path. Each in its
+                own way, and each deciding for itself. Nothing is sent a command.
+              </p>
             </div>
           </div>
 
-          <div className="note" style={{ marginTop: 24 }}>
+          <div className="note" style={{ marginTop: 22 }}>
             <p className="mb0">
-              Most vendors never write code. A skill file plus, optionally, a test scenario is the whole
-              touchpoint — the bus topology, approval gate, audit trail and validation pipeline stay untouched. A
-              custom rule type in the executor is the escape hatch when the seven built-ins genuinely can’t express
-              the logic.
+              <b>Open shape, house policy.</b> Skills follow the open{' '}
+              <a href={AGENTSKILLS_URL} target="_blank" rel="noreferrer">
+                agentskills.io ↗
+              </a>{' '}
+              format: a markdown file with YAML frontmatter. The shared library is generic; a newsroom loads its own
+              values against it. Your policy stays yours, and a newsroom can implement SOM 1.0 completely without using
+              the library at all.
             </p>
           </div>
         </div>
       </section>
 
-      <section id="rules">
+      <section id="anatomy">
         <div className="wrap">
-          <p className="eyebrow">Rule types</p>
-          <h2>Seven built-ins</h2>
+          <p className="eyebrow">Anatomy</p>
+          <h2>One file: frontmatter for machines, prose for people</h2>
+
+          <div className="grid g2" style={{ marginTop: 24, alignItems: 'start' }}>
+            <div>
+              <pre>{`---
+skill_id: smart-stories/hold-while-flagged
+skill_version: ${LIBRARY_VERSION}
+som_schema_version: ["1.0.0"]
+skill_type: REFERENCE
+category: compliance
+lifecycle: draft
+
+recall:                      # the advert
+  target_system_type: [mam, playout, rundown,
+                       cms, compliance_hub]
+  conditions:
+    - kind: field
+      path: editorial_gates[].gate_type
+      op: equals
+      value: "{{ config.gate_type }}"
+    - kind: field
+      path: editorial_gates[].status
+      op: equals
+      value: PENDING
+  recall_on: ["story.context", …]
+  state_path: editorial_gates[].status
+
+output_messages: ["skill.warning.raised"]
+severity_range: [hold]
+auto_change_content: false
+fail_closed: true
+migration_policy: GATED
+disclosure_level: L2
+depends: []
+---
+# hold-while-flagged
+…what it is, config surface, runtime loop,
+ output contract, worked configurations,
+ eval set, open items, vendor build notes`}</pre>
+            </div>
+            <div>
+              <div className="card" style={{ marginBottom: 16 }}>
+                <span className="kicker">Identity</span>
+                <p className="small mb0">
+                  <code>skill_id</code> as <code>publisher/name</code>, a semver <code>skill_version</code>, the SOM
+                  schema versions it resolves against, a <code>category</code> and a <code>lifecycle</code>.
+                </p>
+              </div>
+              <div className="card" style={{ marginBottom: 16 }}>
+                <span className="kicker">The advert</span>
+                <p className="small mb0">
+                  <code>recall</code> names which tool types may pick the skill up, the conditions over story paths
+                  (<code>field</code> and <code>field_change</code>), and which messages cause a look. Paths are
+                  literal and checked against the published schema; values can be templated from the house’s
+                  configuration.
+                </p>
+              </div>
+              <div className="card" style={{ marginBottom: 16 }}>
+                <span className="kicker">Configured instance</span>
+                <p className="small mb0">
+                  One generic file with one house’s values loaded, watching one condition. A house runs several off the
+                  same file — a court restriction at <code>story</code> scope, an unconfirmed figure at{' '}
+                  <code>link</code> scope — and registers one advert row per configured instance.
+                </p>
+              </div>
+              <div className="card">
+                <span className="kicker">Severity</span>
+                <p className="small mb0">
+                  <code>hold</code> / <code>flag</code> / <code>inform</code>, lower-case permanently. A skill declares
+                  which of them it can produce in <code>severity_range</code>.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="table-scroll" style={{ marginTop: 26 }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Guarantee</th>
+                  <th>Value</th>
+                  <th>What it means</th>
+                </tr>
+              </thead>
+              <tbody>
+                {GUARANTEES.map((g) => (
+                  <tr key={g.field}>
+                    <td>
+                      <code>{g.field}</code>
+                    </td>
+                    <td>
+                      <code>{g.value}</code>
+                    </td>
+                    <td className="small">{g.meaning}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="library">
+        <div className="wrap">
+          <p className="eyebrow">som-skill-library {LIBRARY_VERSION}</p>
+          <h2>Ten reference skills, one proposed</h2>
           <p className="lede">
-            <code>field</code> is always a dotted path relative to the payload root. Static validation checks that
-            the required config keys are present and that any regex compiles.
+            All <code>lifecycle: draft</code>, <code>origin: reference</code>, resolving against SOM 1.0. Find your tool
+            type in the lookup table, read the skills in that row, and configure them for your house.
           </p>
 
           <div className="table-scroll" style={{ marginTop: 24 }}>
             <table>
               <thead>
                 <tr>
-                  <th>Type</th>
-                  <th>Config</th>
-                  <th>Fires when</th>
-                  <th>Substitutions</th>
+                  <th>Skill</th>
+                  <th>Declares</th>
+                  <th>Category</th>
+                  <th>Severity</th>
+                  <th>Recalled by</th>
                 </tr>
               </thead>
               <tbody>
-                {RULE_TYPES.map((r) => (
-                  <tr key={r.type}>
+                {[...published, ...proposed].map((s) => (
+                  <tr key={s.name}>
                     <td>
-                      <code>{r.type}</code>
+                      <a href={repoFile(`skills/skills/${s.name}.md`)} target="_blank" rel="noreferrer">
+                        <code>{s.name}</code>
+                      </a>
+                      {s.proposed && (
+                        <div style={{ marginTop: 4 }}>
+                          <span className="tag soon">proposed</span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="small" style={{ minWidth: 280 }}>
+                      {s.declares}
                     </td>
                     <td className="small">
-                      <code>{r.config}</code>
+                      {s.category} <span className="muted">· X={CATEGORY_X[s.category]}</span>
                     </td>
-                    <td className="small">{r.fires}</td>
-                    <td className="small">
-                      <code>{r.subs}</code>
+                    <td>
+                      {s.severities.map((sev) => (
+                        <span key={sev} className={`tag ${sev}`} style={{ marginRight: 4 }}>
+                          {sev}
+                        </span>
+                      ))}
+                    </td>
+                    <td className="small" style={{ minWidth: 150 }}>
+                      {s.targets.map((t) => (
+                        <div key={t}>
+                          <code>{t}</code>
+                        </div>
+                      ))}
                     </td>
                   </tr>
                 ))}
@@ -149,158 +236,121 @@ export default function Skills() {
             </table>
           </div>
 
-          <div className="grid g2" style={{ marginTop: 22, alignItems: 'start' }}>
-            <div className="card">
-              <span className="kicker">field_changed is special</span>
-              <p className="small">
-                It is the only type that looks across versions, and the only one that supports an array wildcard —
-                exactly one <code>[]</code>, as in <code>assets[].acquisition_state</code>. Elements are matched
-                between versions by <code>asset_id</code> / <code>source_id</code> / <code>flag_id</code> /{' '}
-                <code>id</code>.
-              </p>
-              <p className="small mb0">
-                It stays quiet on the first sighting of a story, because there is nothing to compare against — and
-                “first sighting” includes the first story after a restart.
-              </p>
-            </div>
-            <div className="card">
-              <span className="kicker">Arrays otherwise</span>
-              <p className="small mb0">
-                Every other rule type treats an array field — <code>compliance</code>, <code>assets</code> — as a
-                whole, checking presence or absence. Per-element logic such as “any compliance flag of type X”
-                means writing a custom rule type in the executor.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="validation">
-        <div className="wrap">
-          <p className="eyebrow">Validation</p>
-          <h2>Three layers before you go live</h2>
-
-          <div className="grid g3" style={{ marginTop: 26 }}>
-            <div className="card">
-              <div className="lane-icon">1</div>
-              <h3>Static</h3>
-              <p className="small">
-                Schema and config-key checks, run automatically on every register or update. Unknown rule types,
-                missing config keys and bad regexes come back as structured errors before anything reaches the bus.
-              </p>
-            </div>
-            <div className="card">
-              <div className="lane-icon">2</div>
-              <h3>Dry-run</h3>
-              <p className="small">
-                Evaluates your rules against every seed story <b>without publishing</b>. You see precisely which
-                stories fire which rules.
-              </p>
-              <p className="small mb0 muted">
-                Dry-run has no “previous version”, so <code>field_changed</code> rules can never fire here. Test
-                those live.
-              </p>
-            </div>
-            <div className="card">
-              <div className="lane-icon">3</div>
-              <h3>AI review</h3>
-              <p className="small mb0">
-                Optional. Ships the skill, the seeds and the dry-run result to an LLM for structured editorial
-                feedback — a second opinion on the rule’s wording and intent, not a gate.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="loop">
-        <div className="wrap narrow">
-          <p className="eyebrow">Iteration</p>
-          <h2>The loop you’ll actually run</h2>
-          <ul className="clean">
-            <li>
-              <b>Register</b> the skill — static validation runs on the spot.
-            </li>
-            <li>
-              <b>Dry-run</b> it against the seed stories and read which rules fired where.
-            </li>
-            <li>
-              <b>Review</b> (optional) with the AI pass for a sanity check on wording and intent.
-            </li>
-            <li>
-              <b>Go live</b>: publish seeds or run a scenario, and watch your run records and staged outputs appear.
-            </li>
-            <li>
-              For a <code>field_changed</code> rule, <b>mutate a story</b> so there is an actual transition to
-              detect — advance a phase, or drive a media arrival to completion.
-            </li>
-          </ul>
-          <p className="mb0">
-            Your outputs then ride the same gate as everything else: staged → human decision →{' '}
-            <code>som.skills.events</code> or <code>som.skills.rejected</code>, republished in a fresh
-            gate-attributed envelope with the reviewer stamped in <code>payload.extensions</code> and the decision
-            recorded on <code>som.system.audit</code>.
+          <p className="small muted" style={{ marginTop: 16 }}>
+            <a href={repoFile('skills/docs/LOOKUP-TABLE.md')} target="_blank" rel="noreferrer">
+              Lookup table ↗
+            </a>{' '}
+            ·{' '}
+            <a href={repoFile('skills/docs/CONVENTIONS.md')} target="_blank" rel="noreferrer">
+              Conventions ↗
+            </a>{' '}
+            ·{' '}
+            <a href={repoDir('skills/skills')} target="_blank" rel="noreferrer">
+              All skill files ↗
+            </a>
           </p>
         </div>
       </section>
 
-      <section id="pitfalls">
+      <section id="combine">
         <div className="wrap">
-          <p className="eyebrow">Pitfalls</p>
-          <h2>Why it isn’t working</h2>
-          <div className="table-scroll" style={{ marginTop: 24 }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Symptom</th>
-                  <th>Cause</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>My skill never runs, but dry-run fires</td>
-                  <td className="small">
-                    The advert’s <code>operates_on</code> doesn’t cover <code>story.context</code>. The executor
-                    logs this once per skill when the next story arrives.
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    A <code>field_changed</code> rule never fires
-                  </td>
-                  <td className="small">
-                    No previous version this session — first sighting, or a restart. Republish once to establish a
-                    baseline, then trigger the transition. Dry-run can never fire change rules.
-                  </td>
-                </tr>
-                <tr>
-                  <td>Rule paths resolve to nothing</td>
-                  <td className="small">
-                    The config predates the v0.3.x renames: <code>sources[]</code> is now{' '}
-                    <code>editorial_source[]</code>, <code>skills_config.broadcaster</code> is now{' '}
-                    <code>skills_config.newsroom</code>. See <Link to="/envelope#renames">the rename table</Link>.
-                  </td>
-                </tr>
-                <tr>
-                  <td>Rule fires but the detail reads wrong</td>
-                  <td className="small">
-                    The <code>detail_template</code> uses a substitution the rule type doesn’t provide. Each type
-                    offers a fixed set — check the table above.
-                  </td>
-                </tr>
-                <tr>
-                  <td>Nothing appears for a warning I emitted externally</td>
-                  <td className="small">
-                    Message-type names are suffixed on the wire. Consumers route on{' '}
-                    <code>skill.warning.raised</code>, not <code>skill.warning</code>.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <p className="eyebrow">When skills meet</p>
+          <h2>Holds combine by conjunction</h2>
+
+          <div className="grid g2" style={{ marginTop: 24, alignItems: 'start' }}>
+            <div className="card">
+              <span className="kicker">Any one hold means held</span>
+              <p className="small">
+                Where several gates bind the same fact on the same telling, it is served only when every one permits.
+                “Most restrictive wins” and “story owner takes precedence” were formally withdrawn on 29 July 2026.
+              </p>
+              <p className="small mb0">
+                Precedence between two skills that clash on the same action is a separate question, ordered by{' '}
+                <b>X</b> (category: compliance 1, editorial 2, workflow 3), <b>Y</b> (origin — every library skill is 5)
+                and <b>Z</b>, which only the publishing house sets.
+              </p>
+            </div>
+            <div className="card">
+              <span className="kicker">Chaining over the bus</span>
+              <p className="small">
+                A skill that both declared a state and withheld something would sit in two positions at once. So
+                “flag and hold” is two skills: <code>flag-on-mismatch</code> declares the flag, and{' '}
+                <code>hold-while-flagged</code> advertises against flag state — whoever raised it, a skill or a lawyer.
+              </p>
+              <p className="small mb0">
+                That is why <code>depends</code> is empty everywhere: declaring a dependency would invert it and create
+                a cycle at the first version change.
+              </p>
+            </div>
           </div>
 
-          <p style={{ marginTop: 24 }}>
-            <Link to="/get-started">Next: run the whole thing locally →</Link>
+          <div className="grid g2" style={{ marginTop: 18, alignItems: 'start' }}>
+            <div className="note warn">
+              <p className="mb0">
+                <b>Fail closed.</b> An unreadable configuration or story value is treated as the condition holding, at
+                the loudest severity the skill has, and <code>detail</code> names what couldn’t be read. If a rule
+                can’t be evaluated, the output it guards stays held and a person decides.
+              </p>
+            </div>
+            <div className="note">
+              <p className="mb0">
+                <b>What doesn’t clear a hold:</b> time passing, the flag simply missing from a later snapshot, a
+                clearance at a different scope, a lower authority, an executor restart, or clearing a different flag.
+                Releasing a hold is never an instruction to release the asset.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="checks">
+        <div className="wrap">
+          <p className="eyebrow">Validation</p>
+          <h2>The library checks itself</h2>
+          <p className="lede">
+            Five scripts ship with the library, and each asks a different question — including whether the documents
+            agree with the files they describe.
+          </p>
+          <pre style={{ marginTop: 22 }}>{`cd som/skills
+python3 scripts/validate_som_skill.py skills/<name>.md   # one skill file is legal
+python3 scripts/check_library.py skills/                  # the library holds together
+python3 scripts/check_paths.py skills/                    # every path resolves against
+                                                          #   ../schema/story-context.schema.json
+python3 scripts/build_lookup_table.py . --check           # the table matches the adverts
+python3 scripts/check_cover_claims.py .                   # the docs match the files`}</pre>
+          <p className="small muted">
+            One gap is named rather than hidden: <code>check_paths.py</code> resolves literal paths only. A{' '}
+            <code>{'{{ config.* }}'}</code> value is unknowable until a house configures it, so catching a bad configured
+            path is registration-time work for the house.
+          </p>
+        </div>
+      </section>
+
+      <section id="open">
+        <div className="wrap narrow">
+          <p className="eyebrow">Honestly open</p>
+          <h2>What the library doesn’t claim to settle</h2>
+          <ul className="clean">
+            <li>
+              <b>How authority is compared.</b> “Cleared by equal or higher authority on the same scope” is the library’s
+              working position, with the ordering supplied by each house as <code>authority_scale</code>. No group has
+              ratified it.
+            </li>
+            <li>
+              <b>Who turns a raised warning into gate state.</b> A raise skill only publishes a warning; a hold skill
+              reads <code>editorial_gates[]</code>. What materialises one into the other is not yet defined.
+            </li>
+            <li>
+              <b>Scheme-qualified tag matching.</b> Skills match <code>tags[].value</code> regardless of scheme today;
+              whether to match <code>newsroom:sport</code> rather than <code>sport</code> is open.
+            </li>
+            <li>
+              <b>Demo configuration.</b> The configured instances used in the IBC walkthrough name individual vendors and
+              are not published in 1.0, pending each vendor’s sign-off.
+            </li>
+          </ul>
+          <p className="mb0">
+            <Link to="/get-started">Next: validate and publish your first message →</Link>
           </p>
         </div>
       </section>

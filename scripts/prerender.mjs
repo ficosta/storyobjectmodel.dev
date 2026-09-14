@@ -71,7 +71,7 @@ function jsonLd(route) {
       url: `${SITE_URL}/`,
       name: SITE_NAME,
       description:
-        'A visual guide to the Story Object Model, the open standard for sharing editorial story context between newsroom systems.',
+        'An unofficial visual guide to the Story Object Model 1.0, the open standard for story context in content production.',
       inLanguage: 'en',
     },
     {
@@ -80,8 +80,8 @@ function jsonLd(route) {
       name: 'Story Object Model',
       alternateName: 'SOM',
       description:
-        'An open standard describing the editorial context of a news story in a structured form, so that context can move between newsroom, production and AI tools built by different vendors.',
-      url: `${SITE_URL}/`,
+        'An open standard for story context in content production: seven JSON message families on a publish/subscribe bus, so every tool reads the same live description of a story.',
+      url: 'https://storyobjectmodel.com/',
     },
     webPage,
   ];
@@ -208,19 +208,21 @@ console.log('wrote robots.txt');
 
 const llms = `# ${SITE_NAME}
 
-> A guide to the Story Object Model (SOM): an open standard describing the editorial context of a news story in a structured form, so that context can move between newsroom, production and AI tools built by different vendors.
+> An unofficial visual guide to the Story Object Model (SOM) 1.0: the open standard for story context in content production. The standard's official home is https://storyobjectmodel.com and its normative schemas live in https://github.com/storyobjectmodel/som.
 
-SOM is being specified by SMART STORIES, a 2026 IBC Accelerator project proposed by the Associated Press, NBCUniversal, ITN and the BBC. The public draft specification is due at IBC in September 2026, so treat the model as moving, and the vendored JSON Schemas in the reference implementation as the source of truth.
+SOM 1.0 was published on 12 September 2026 at IBC in Amsterdam, developed through the IBC Accelerator Media Innovation Programme 2026 as the project SMART STORIES (fourteen champions, seventeen participants). It is open and unowned: schemas, examples, tools and skills are Apache 2.0; specification prose is CC BY 4.0.
 
-The core loop: a story is published as a full \`story.context\` snapshot on a bus; an executor runs data-driven skills against it; skill outputs go to a staging topic and reach production only after a human approves them; every decision, including a refusal, is recorded on an audit topic.
+What SOM is: seven JSON message families carried on an ordinary publish/subscribe bus — the envelope, story.context, som.telling.*, som.link.*, delivery.media_available, som.system.audit and skill.warning.raised. Each schema is served at https://storyobjectmodel.com/schema/1.0/<family>.schema.json, a URL stable for the life of 1.x.
 
 Key distinctions a reader should get right:
-- SOM is the shared structure and contains no intelligence. The intelligence stays inside each vendor's tools.
-- SOM defines the common shape; Skills define the per-newsroom logic (editorial standards, compliance rules, show formats).
-- SOM is complementary to MOS, not a replacement. MOS moves data; SOM moves the story's current meaning.
-- Stories are republished in full on every change. There are no deltas and no query API.
+- Three nouns: a Story is the happening, an Asset is what the newsroom gathers and makes (by reference; media never travels the bus), a Telling is the moment an asset meets an audience.
+- Nothing sits in charge. There is no orchestrator; each tool reads the story and decides for itself.
+- SOM carries context; Skills carry knowledge. A skill declares; the tool that owns the executor acts. Holds combine by conjunction and fail closed.
+- story.context is a full snapshot, never a delta. Omission means absent. One writer — the publisher's story management system — mints the story and owns its sequence.
+- som_version is "1.0.0"; "0.3.2" is not conformant. message_type is the only parsing discriminator. Implementations must assert JSON Schema format.
+- SOM replaces nothing: not the media, the rundown, a MAM or a product. MOS stays; TAMS holds the frames.
 
-This site is a secondary source, written by the community and not by the consortium.
+Where this guide and a published schema disagree, the schema is right.
 
 ## Pages
 
@@ -229,10 +231,6 @@ ${ROUTES.map((r) => `- [${r.label}](${r.path === '/' ? `${SITE_URL}/` : `${SITE_
 ## Primary sources
 
 ${READING.map((r) => `- [${r.title}](${r.url}): ${r.source}. ${r.why}`).join('\n')}
-
-## Reference implementation
-
-- [SOM hackathon starter (.NET)](https://github.com/google/virtual-broadcast-production-assistant/tree/main/som-hackathon-starter-dotnet): executor, dashboard, simulator and the vendored JSON Schemas.
 `;
 
 writeFileSync(join(DIST, 'llms.txt'), llms);

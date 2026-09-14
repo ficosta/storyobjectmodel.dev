@@ -79,6 +79,8 @@ code { font-size: .87em; }
   color: var(--fg);
   white-space: nowrap;
 }
+/* long identifiers such as schema URLs may break anywhere at narrow widths */
+:not(pre) > code.url { white-space: normal; overflow-wrap: anywhere; }
 
 pre {
   background: var(--bg-3);
@@ -293,9 +295,9 @@ header.site {
 /* ---------- cards / grids ---------- */
 
 .grid { display: grid; gap: 18px; }
-.g2 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
-.g3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.g4 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
 
 .card {
   background: var(--bg-2);
@@ -715,6 +717,6 @@ footer.site .legal .craft a { color: var(--accent); font-weight: 600; }
 
 /* ---------- further reading ---------- */
 
-.reading { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+.reading { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 18px; }
 .reading .card h3 { font-size: 1.05rem; margin-bottom: .5em; }
 .reading .card .kicker { color: var(--accent); }

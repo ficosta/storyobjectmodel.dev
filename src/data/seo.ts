@@ -18,49 +18,49 @@ export const ROUTES: RouteMeta[] = [
   {
     path: '/',
     label: 'Home',
-    title: 'Story Object Model — the open story-context standard for newsrooms',
+    title: 'Story Object Model 1.0 — a visual guide to the story context standard',
     description:
-      'SOM is an open standard for sharing editorial story context between newsroom systems — NRCS, MAM, graphics, compliance, playout. One bus, typed messages, no point-to-point integrations.',
+      'SOM 1.0 is the open standard for story context in content production: seven JSON message families on a pub/sub bus, so every newsroom tool reads the same live story.',
     priority: 1.0,
   },
   {
     path: '/concepts',
     label: 'Concepts',
-    title: 'SOM concepts — stories, skills, the approval gate',
+    title: 'SOM concepts — Story, Asset, Telling, and how the model behaves',
     description:
-      'The Story Object Model in five minutes: stories as full snapshots, skills as data, the SOM/Skills boundary, the human approval gate, safe-state stops, and the full glossary.',
+      'The Story Object Model in ten minutes: the three nouns, snapshots, lifecycle, editorial gates and audit, skills that declare while executors act, and the principles behind it.',
     priority: 0.9,
   },
   {
     path: '/envelope',
     label: 'Envelope',
-    title: 'The SOM envelope — every field, and the five rules that bite',
+    title: 'The SOM 1.0 envelope — every field, and the conformance rules',
     description:
-      'Field-by-field reference for the SOM message envelope and the skill.warning.raised payload, the v0.3.x renames, dot-notation field paths, and the vendor extension namespace.',
+      'Field-by-field reference for the SOM 1.0 envelope and the skill.warning.raised payload: the wire version, format assertion, extensions, and what changed from v0.3.2.',
     priority: 0.8,
   },
   {
     path: '/bus',
-    label: 'The bus',
-    title: 'SOM topics — the core loop and the distribution layer',
+    label: 'Messages',
+    title: 'SOM 1.0 message families — story, link, telling, delivery, audit, warning',
     description:
-      'All nine SOM topic families: story context, staging, events, rejected and runs, plus delivery, link, telling and the system audit trail. With the TAMS media-arrival junction.',
+      'The seven message families of SOM 1.0 and their schemas: story.context, som.link.*, som.telling.*, delivery.media_available, som.system.audit and skill.warning.raised.',
     priority: 0.8,
   },
   {
     path: '/skills',
     label: 'Skills',
-    title: 'SOM skills — anatomy, the seven rule types, validation',
+    title: 'SOM skills — the library, recall adverts, and declare-not-act',
     description:
-      'A SOM skill is data, not code: one JSON file with an advert and rules. The seven built-in rule types, the three validation layers, the iteration loop, and the usual pitfalls.',
+      'SOM carries context; Skills carry knowledge. The ten-skill reference library, how an executor recalls a skill, configured instances, conjunction of holds, and fail-closed.',
     priority: 0.8,
   },
   {
     path: '/get-started',
     label: 'Get started',
-    title: 'Get started with SOM — run the loop end to end',
+    title: 'Get started with SOM 1.0 — validate, publish, join',
     description:
-      'Bring up a SOM bus and the reference dashboard, publish a seed story, watch skills fire, approve one warning and reject another. Plus the curl cookbook and TAMS media arrivals.',
+      'Validate messages against the SOM 1.0 schemas with format assertion, publish a conformant story.context, pick an integration tier, and join the open working group.',
     priority: 0.9,
   },
 ];

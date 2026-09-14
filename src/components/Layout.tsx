@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { metaForPath } from '../data/seo';
 import { Logo } from './Logo';
+import { EMULATOR_URL, OFFICIAL_URL, SCHEMA_BASE_URL, SPEC_REPO_URL } from '../data/consortium';
 
 const THEME_KEY = 'som-theme';
 
@@ -47,12 +48,9 @@ function ThemeToggle() {
 const NAV = [
   { to: '/concepts', label: 'Concepts' },
   { to: '/envelope', label: 'Envelope' },
-  { to: '/bus', label: 'The bus' },
+  { to: '/bus', label: 'Messages' },
   { to: '/skills', label: 'Skills' },
 ];
-
-const REPO =
-  'https://github.com/google/virtual-broadcast-production-assistant/tree/main/som-hackathon-starter-dotnet';
 
 function Header() {
   const [open, setOpen] = useState(false);
@@ -78,8 +76,8 @@ function Header() {
               {item.label}
             </NavLink>
           ))}
-          <a href={REPO} target="_blank" rel="noreferrer">
-            GitHub ↗
+          <a href={SPEC_REPO_URL} target="_blank" rel="noreferrer">
+            Spec ↗
           </a>
           <ThemeToggle />
           <Link className="nav-cta" to="/get-started">
@@ -104,7 +102,7 @@ function Footer() {
               </span>
             </Link>
             <p className="small muted" style={{ maxWidth: '34ch' }}>
-              An open JSON pub/sub standard for sharing story context across the newsroom.
+              A visual guide to SOM 1.0, the open standard for story context in content production.
             </p>
           </div>
           <div>
@@ -128,10 +126,10 @@ function Footer() {
                 <Link to="/envelope">Envelope</Link>
               </li>
               <li>
-                <Link to="/bus">Topics</Link>
+                <Link to="/bus">Message families</Link>
               </li>
               <li>
-                <Link to="/skills">Skills &amp; rules</Link>
+                <Link to="/skills">Skills</Link>
               </li>
             </ul>
           </div>
@@ -142,13 +140,23 @@ function Footer() {
                 <Link to="/get-started">Get started</Link>
               </li>
               <li>
-                <a href={REPO} target="_blank" rel="noreferrer">
-                  Reference impl ↗
+                <a href={OFFICIAL_URL} target="_blank" rel="noreferrer">
+                  storyobjectmodel.com ↗
                 </a>
               </li>
               <li>
-                <a href={`${REPO}/schema`} target="_blank" rel="noreferrer">
-                  JSON Schemas ↗
+                <a href={SPEC_REPO_URL} target="_blank" rel="noreferrer">
+                  Specification ↗
+                </a>
+              </li>
+              <li>
+                <a href={`${SCHEMA_BASE_URL}/`} target="_blank" rel="noreferrer">
+                  Schemas 1.0 ↗
+                </a>
+              </li>
+              <li>
+                <a href={EMULATOR_URL} target="_blank" rel="noreferrer">
+                  Emulator ↗
                 </a>
               </li>
             </ul>
@@ -156,8 +164,9 @@ function Footer() {
         </div>
         <div className="legal">
           <span>
-            © {new Date().getFullYear()} — an unofficial community guide to the Story Object Model. Summarised from
-            the SOM starter docs; the schemas are the source of truth.
+            © {new Date().getFullYear()} — an unofficial community guide to the Story Object Model. The standard lives
+            at <a href={OFFICIAL_URL}>storyobjectmodel.com</a>; its specification prose is CC BY 4.0 and its schemas
+            Apache 2.0, and where this guide and a schema disagree, the schema is right.
           </span>
           <span className="craft">
             Crafted with some agents love and{' '}

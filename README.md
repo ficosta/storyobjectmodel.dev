@@ -1,7 +1,8 @@
 # storyobjectmodel.dev
 
-A visual guide to the **Story Object Model** — the open JSON pub/sub standard for sharing
-editorial story context across newsroom systems.
+An unofficial visual guide to the **Story Object Model 1.0** — the open standard for story context in
+content production. The standard itself lives at [storyobjectmodel.com](https://storyobjectmodel.com)
+and [github.com/storyobjectmodel/som](https://github.com/storyobjectmodel/som).
 
 Built as a static site: Vite + React + TypeScript, no backend, no CMS.
 
@@ -55,8 +56,10 @@ never reloads.
 src/
   pages/        one component per route (Home, Concepts, Envelope, Bus, Skills, GetStarted)
   components/   Layout (header/footer/theme), LoopDiagram, FieldExplorer, Bits (shared UI)
-  data/         envelope.ts (field docs), topics.ts (topics, rule types, FAQ)
-  styles/       site.css — design tokens in :root, light theme under [data-theme="light"]
+  data/         envelope.ts (envelope + warning fields, the seven families), skills.ts (the
+                skill library), faq.ts, reading.ts (sources, principles), consortium.ts
+                (credits, official URLs, demos), seo.ts
+  styles/       site.css — design tokens in :root, dark theme under [data-theme="dark"]
 ```
 
 Content lives in `src/data/` wherever it is tabular, so the reference tables and the
@@ -77,27 +80,28 @@ places that crop to a square) and `public/apple-touch-icon.png` (180×180).
 
 ## Logos
 
-`public/logos/` holds the marks of the organisations that proposed the standard — AP,
+`public/logos/` holds the marks of four of the fourteen champion organisations — AP,
 NBCUniversal, ITN and the BBC. All four are the SVG versions published on Wikimedia Commons
-and tagged there as public domain (simple shapes / text logos). They are used nominatively,
-to identify the bodies behind the specification, and rendered greyscale in the credit row.
+and tagged there as public domain (simple shapes / text logos). They are used nominatively and
+rendered greyscale in the credit row.
 
-The full consortium roster — 14 champions and 16 technology participants — lives in
-`src/data/consortium.ts`, transcribed from the IBC Accelerator project page.
+The full roster — 14 champions and 17 participants — lives in `src/data/consortium.ts`,
+transcribed from `CONTRIBUTORS.md` in the specification repository.
 
 ## Content sources
 
-Written from the SOM hackathon starter documentation —
-[`som-hackathon-starter-dotnet/docs`](https://github.com/google/virtual-broadcast-production-assistant/tree/main/som-hackathon-starter-dotnet/docs)
-— covering the envelope reference, message contracts, distribution-layer contracts,
-architecture, skill validation and the user guide.
+**storyobjectmodel.com is the source of truth**, together with the repository it links as the
+specification, [`storyobjectmodel/som`](https://github.com/storyobjectmodel/som): the seven
+schemas under `schema/`, `spec/` (introduction, conformance, compatibility policy, migration from
+v0.3.2, open register, version history), `skills/` (som-skill-library 0.2.2), `examples/`,
+`GOVERNANCE.md` and `CONTRIBUTORS.md`. The prose here summarises them in its own words; the
+specification prose is CC BY 4.0 and the schemas, examples, tools and skills Apache 2.0.
 
-Context on the standard itself — the four ideas it rests on, the Story Agent, the SOM/Skills
-boundary, the consortium and the timeline — comes from the project's own public writing, all
-of it linked from the "Further reading" section on the home page and listed in
-`src/data/reading.ts`: the TVBEurope interviews with Octopus Newsroom and Moments Lab, AP
-Workflow Solutions on the coordination problem, the Octopus interview with Milan Varga, the
-Trint pre-show piece, and the IBC Accelerator project page.
+The site was first written against the pre-1.0 hackathon starter (v0.3.2). It was rewritten
+for SOM 1.0: the central executor, staging/approval topics and built-in rule types described
+then are not part of the standard and have been removed.
 
-**The vendored JSON Schemas are the source of truth.** Where this site and a schema disagree,
+The secondary articles in the "Further reading" section are listed in `src/data/reading.ts`.
+
+**The published JSON Schemas are the source of truth.** Where this site and a schema disagree,
 the schema is right.
