@@ -72,36 +72,16 @@ def width_of(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont) ->
 
 # --- the mark ------------------------------------------------------------
 
-# Three 76-degree arcs with 44-degree gaps: the bus. A rounded square at the
-# centre: the story object. Three nodes on the ring: the participants.
-ARCS = [(292, 8), (52, 128), (172, 248)]
+# The SOM mark as storyobjectmodel.com draws it: three bars on a 24-unit grid,
+# the middle one offset. Ink for the outer bars, the site accent for the middle.
+BARS = [((0, 2, 17, 4.6), FG), ((5, 9.7, 19, 4.6), ACCENT), ((0, 17.4, 17, 4.6), FG)]
 
 
 def draw_mark(draw: ImageDraw.ImageDraw, x: float, y: float, size: float) -> None:
     """Draw the SOM mark with its top-left corner at (x, y), `size` wide."""
-    u = size / 32.0                       # the mark is authored on a 32-unit grid
-    cx, cy, r = x + 16 * u, y + 16 * u, 11 * u
-    stroke = max(1.0, 2.4 * u)
-    box = (cx - r, cy - r, cx + r, cy + r)
-
-    for start, end in ARCS:
-        draw.arc(box, start, end, fill=ACCENT, width=int(round(stroke)))
-        # PIL has no round caps — cap each end with a dot of the same radius.
-        for angle in (start, end):
-            a = math.radians(angle)
-            px, py = cx + r * math.cos(a), cy + r * math.sin(a)
-            h = stroke / 2
-            draw.ellipse((px - h, py - h, px + h, py + h), fill=ACCENT)
-
-    draw.rounded_rectangle(
-        (x + 11.8 * u, y + 11.8 * u, x + 20.2 * u, y + 20.2 * u),
-        radius=2.6 * u,
-        fill=ACCENT,
-    )
-
-    for nx, ny in ((16, 5), (25.53, 21.5), (6.47, 21.5)):
-        px, py, nr = x + nx * u, y + ny * u, 2.8 * u
-        draw.ellipse((px - nr, py - nr, px + nr, py + nr), fill=ACCENT_2)
+    u = size / 24.0                       # the mark is authored on a 24-unit grid
+    for (bx, by, bw, bh), colour in BARS:
+        draw.rectangle((x + bx * u, y + by * u, x + (bx + bw) * u, y + (by + bh) * u), fill=colour)
 
 
 def draw_squiggle(draw: ImageDraw.ImageDraw, x0: float, x1: float, top: float, scale: float) -> None:
