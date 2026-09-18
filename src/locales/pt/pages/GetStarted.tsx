@@ -219,11 +219,11 @@ export async function validateMessage(msg: { som_version?: string; message_type?
 
           <div className="note" style={{ marginTop: 22 }}>
             <p className="mb0">
-              <b>Veja num barramento ao vivo.</b> O{' '}
+              <b>Veja numa pipeline ao vivo.</b> O{' '}
               <a href={EMULATOR_URL} target="_blank" rel="noreferrer">
                 emulador ↗
               </a>{' '}
-              do projeto é um painel sobre um barramento em funcionamento que você mesmo pode usar, e as{' '}
+              do projeto é um painel sobre uma pipeline em funcionamento que você mesmo pode usar, e as{' '}
               <a href={DEMOS_URL} target="_blank" rel="noreferrer">
                 demos da IBC ↗
               </a>{' '}
@@ -245,7 +245,7 @@ export async function validateMessage(msg: { som_version?: string; message_type?
               <div className="lane-icon">1</div>
               <h3>Assinar e publicar</h3>
               <p className="small mb0">
-                Leia a história e coloque a sua própria família no barramento. O projeto estima isso em dias, não em
+                Leia a história e coloque a sua própria família na pipeline. O projeto estima isso em dias, não em
                 meses.
               </p>
             </div>

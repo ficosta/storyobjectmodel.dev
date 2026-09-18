@@ -81,7 +81,7 @@ const ROUTE_TEXT: Record<Exclude<Locale, 'en'>, Record<string, RouteText>> = {
       label: 'Início',
       title: 'Story Object Model 1.0 — um guia visual do padrão de contexto da história',
       description:
-        'O SOM 1.0 é o padrão aberto para contexto da história na produção de conteúdo: sete famílias de mensagens JSON num barramento pub/sub, para toda ferramenta da redação ler a mesma story ao vivo.',
+        'O SOM 1.0 é o padrão aberto para contexto da história na produção de conteúdo: sete famílias de mensagens JSON numa pipeline pub/sub, para toda ferramenta da redação ler a mesma story ao vivo.',
     },
     '/concepts': {
       label: 'Conceitos',
@@ -194,7 +194,7 @@ const ROUTE_TEXT: Record<Exclude<Locale, 'en'>, Record<string, RouteText>> = {
 
 const FALLBACK_TEXT: Record<Locale, RouteText> = {
   en: { label: 'Not found', title: 'Page not found — storyobjectmodel.dev', description: 'That page is not on the bus.' },
-  pt: { label: 'Não encontrada', title: 'Página não encontrada — storyobjectmodel.dev', description: 'Essa página não está no barramento.' },
+  pt: { label: 'Não encontrada', title: 'Página não encontrada — storyobjectmodel.dev', description: 'Essa página não está na pipeline.' },
   es: { label: 'No encontrada', title: 'Página no encontrada — storyobjectmodel.dev', description: 'Esa página no está en el bus.' },
   de: { label: 'Nicht gefunden', title: 'Seite nicht gefunden — storyobjectmodel.dev', description: 'Diese Seite ist nicht auf dem Bus.' },
 };

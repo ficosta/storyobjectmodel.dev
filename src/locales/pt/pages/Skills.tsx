@@ -274,7 +274,7 @@ depends: []
               </p>
             </div>
             <div className="card">
-              <span className="kicker">Encadeamento pelo barramento</span>
+              <span className="kicker">Encadeamento pela pipeline</span>
               <p className="small">
                 Uma skill que ao mesmo tempo declarasse um estado e retivesse algo ocuparia duas posições de uma vez.
                 Por isso “flag e hold” são duas skills: <code>flag-on-mismatch</code> declara a flag, e{' '}

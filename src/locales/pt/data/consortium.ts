@@ -25,7 +25,7 @@ export const DEMOS: Demo[] = [
     title: 'O furacão',
     anchor: 'demo-1',
     summary:
-      'Texto de agência e um feed de dados meteorológicos no barramento, com transcrição e inteligência de mídia lendo a Story. Chegam dois clipes — um com credenciais de autenticidade, outro sem — e o gate os trata de forma diferente, com registro. A tempestade é reclassificada na origem, um jornalista confirma, e toda ferramenta que dependia da categoria antiga vê a mudança ao mesmo tempo. Uma afirmação não confirmada, de fonte única, continua segurada enquanto o resto da página vai ao ar.',
+      'Texto de agência e um feed de dados meteorológicos na pipeline, com transcrição e inteligência de mídia lendo a Story. Chegam dois clipes — um com credenciais de autenticidade, outro sem — e o gate os trata de forma diferente, com registro. A tempestade é reclassificada na origem, um jornalista confirma, e toda ferramenta que dependia da categoria antiga vê a mudança ao mesmo tempo. Uma afirmação não confirmada, de fonte única, continua segurada enquanto o resto da página vai ao ar.',
     vendors: [
       'AP',
       'The Weather Company',
@@ -42,7 +42,7 @@ export const DEMOS: Demo[] = [
     title: 'O anúncio do primeiro-ministro',
     anchor: 'demo-2',
     summary:
-      'Um anúncio cujo desfecho é desconhecido até ser feito. A Story entra no barramento com uma premissa esperada e dois conjuntos de roteiros preparados. As ferramentas que a leem seguram rascunhos de posts para redes sociais, sugerem uma unidade de transmissão ao vivo, transcrevem o sinal e propõem a afirmação no momento em que ela é dita — e nada muda até que um jornalista aprove. Essa única aprovação corta o clipe, compromete os roteiros correspondentes, suprime os outros com um motivo registrado e libera os posts segurados.',
+      'Um anúncio cujo desfecho é desconhecido até ser feito. A Story entra na pipeline com uma premissa esperada e dois conjuntos de roteiros preparados. As ferramentas que a leem seguram rascunhos de posts para redes sociais, sugerem uma unidade de transmissão ao vivo, transcrevem o sinal e propõem a afirmação no momento em que ela é dita — e nada muda até que um jornalista aprove. Essa única aprovação corta o clipe, compromete os roteiros correspondentes, suprime os outros com um motivo registrado e libera os posts segurados.',
     vendors: ['Reuters', 'Octopus', 'LiveU', 'Fonn Group (Mimir)', 'Trint', 'HyperContent AI', 'Amazon Web Services'],
   },
 ];

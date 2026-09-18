@@ -48,7 +48,7 @@ export const READING: Reading[] = [
     source: 'TVBEurope — Ash Ellis, Moments Lab',
     date: 'Setembro de 2026',
     url: 'https://www.tvbeurope.com/ibc/solving-the-story-context-gap',
-    why: 'O que significa, para um fornecedor, publicar no barramento em vez de passar conteúdo de uma interface para outra.',
+    why: 'O que significa, para um fornecedor, publicar na pipeline em vez de passar conteúdo de uma interface para outra.',
   },
   {
     title: 'Writing an open standard for story context',
@@ -81,7 +81,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     title: 'Mensagens, não organizações',
-    body: 'O SOM descreve o que trafega no barramento. Ele não tem opinião sobre as suas mesas, funções ou ferramentas — dois fluxos de trabalho muito diferentes podem falar a mesma Story.',
+    body: 'O SOM descreve o que trafega na pipeline. Ele não tem opinião sobre as suas mesas, funções ou ferramentas — dois fluxos de trabalho muito diferentes podem falar a mesma Story.',
   },
   {
     title: 'Estado afirmado pelo publicador',

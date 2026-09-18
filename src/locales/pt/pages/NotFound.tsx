@@ -7,7 +7,7 @@ export default function NotFound() {
         <p className="eyebrow">404</p>
         <h1>Nada nesse topic</h1>
         <p className="lede" style={{ margin: '0 auto 26px' }}>
-          A página que você pediu não está no barramento. Experimente o ciclo principal.
+          A página que você pediu não está na pipeline. Experimente o ciclo principal.
         </p>
         <div className="btn-row" style={{ justifyContent: 'center' }}>
           <Link className="btn primary" to="/pt">

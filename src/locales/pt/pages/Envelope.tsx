@@ -183,7 +183,7 @@ export default function Envelope() {
             <code>skill.warning.raised</code>
           </h2>
           <p className="lede" style={{ marginBottom: 28 }}>
-            O que uma skill declarou sobre uma história, colocado no barramento pelo executor na ferramenta que a
+            O que uma skill declarou sobre uma história, colocado na pipeline pelo executor na ferramenta que a
             acionou (recall). Doze campos obrigatórios, um objeto fechado e dois campos explicitamente proibidos.
           </p>
 

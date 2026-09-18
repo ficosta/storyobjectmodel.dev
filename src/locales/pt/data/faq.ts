@@ -20,19 +20,19 @@ export const FAQS: Faq[] = [
     a: 'Um único escritor. O sistema de gestão de histórias do publicador cria a Story e é dono do seu <code>sequence_number</code> — nunca a agência, nem mesmo num flash. Todo o resto contribui pela sua própria família de mensagens. Quando as skills divergem, os gates se combinam por <b>conjunção</b> (um único hold basta para segurar), a conformidade é fail-closed e uma transformação nunca levanta um hold.',
   },
   {
-    q: 'Quem opera o barramento, e o que acontece quando ele cai?',
-    a: 'Cada redação opera o seu, como qualquer outra infraestrutura de mensageria da casa. Quando ele está fora do ar, as ferramentas continuam funcionando sozinhas, como hoje, e se reconciliam ao reconectar — nada depende do barramento para continuar no ar. Como a Story é republicada inteira, uma ferramenta que volta lê um único objeto e já está atualizada.',
+    q: 'Quem opera a pipeline, e o que acontece quando ela cai?',
+    a: 'Cada redação opera a sua, como qualquer outra infraestrutura de mensageria da casa. Quando ela está fora do ar, as ferramentas continuam funcionando sozinhas, como hoje, e se reconciliam ao reconectar — nada depende da pipeline para continuar no ar. Como a Story é republicada inteira, uma ferramenta que volta lê um único objeto e já está atualizada.',
   },
   {
     q: 'O SOM está preso ao Kafka, ou a algum broker?',
-    a: 'Não. O SOM define um envelope e sete famílias de payload transportadas sobre um barramento publish/subscribe comum. A única regra de topic é que ele comece com <code>som.</code> — e, de qualquer forma, um consumidor nunca deduz o tipo de payload a partir do topic; <code>message_type</code> é o único discriminador.',
+    a: 'Não. O SOM define um envelope e sete famílias de payload transportadas sobre uma pipeline publish/subscribe comum. A única regra de topic é que ele comece com <code>som.</code> — e, de qualquer forma, um consumidor nunca deduz o tipo de payload a partir do topic; <code>message_type</code> é o único discriminador.',
   },
   {
     q: 'Por que não apontar um modelo para os sistemas que já temos?',
     a: 'Uma consulta de recuperação responde a uma única pergunta para uma única ferramenta, e ninguém mais vê a resposta. Uma produção precisa do contrário: um estado que toda ferramenta lê de forma idêntica, gates que continuam valendo quando o trabalho passa de um fornecedor para outro, e um registro atribuído de cada decisão. A posição do padrão é que modelos são consumidores do SOM, não um substituto para ele.',
   },
   {
-    q: 'A mídia trafega no barramento?',
+    q: 'A mídia trafega na pipeline?',
     a: 'Nunca. Assets são referências. Na junção com o TAMS, uma Story aponta para uma URI de Source e um intervalo de tempo; um MAM ou qualquer outro storage é endereçado do mesmo jeito, por meio de um <code>locator</code>. A vinculação da mídia a uma Story acontece no ato editorial, nunca na ingestão.',
   },
   {

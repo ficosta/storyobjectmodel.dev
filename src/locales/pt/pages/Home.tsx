@@ -49,9 +49,9 @@ export default function Home() {
         <div className="wrap">
           <p className="eyebrow">SOM 1.0 · publicado no IBC 2026</p>
           <h1>
-            Um barramento para o <AccentWord>contexto da história</AccentWord>.
+            Uma pipeline para o <AccentWord>contexto da história</AccentWord>.
             <br />
-            Todas as ferramentas nele.
+            Todas as ferramentas nela.
           </h1>
           <p className="lede">
             O Story Object Model é um padrão aberto para o contexto da história na produção de conteúdo — uma camada
@@ -131,7 +131,7 @@ export default function Home() {
           <p className="eyebrow">A ideia</p>
           <h2>As ferramentas falam com a história, não entre si</h2>
           <p className="lede" style={{ marginBottom: 30 }}>
-            O SOM é um pequeno conjunto de famílias de mensagens JSON sobre um barramento publish/subscribe comum.
+            O SOM é um pequeno conjunto de famílias de mensagens JSON sobre uma pipeline publish/subscribe comum.
             Nada fica acima das ferramentas: nenhum orquestrador, nenhuma aplicação central. Cada participante lê a
             Story, decide por conta própria e publica o que fez na sua própria família.
           </p>
@@ -152,7 +152,7 @@ export default function Home() {
               <h3>Asset</h3>
               <p className="mb0 small">
                 O que a redação apura e produz para contá-la — vídeo, áudio, roteiros, artes, transcrições. Só por
-                referência: a mídia nunca trafega no barramento. Cada Asset carrega sua procedência e sua posição
+                referência: a mídia nunca trafega na pipeline. Cada Asset carrega sua procedência e sua posição
                 probatória.
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function Home() {
       <section id="start">
         <div className="wrap">
           <p className="eyebrow">Comece aqui</p>
-          <h2>Três formas de entrar no barramento</h2>
+          <h2>Três formas de entrar na pipeline</h2>
           <p className="lede" style={{ marginBottom: 30 }}>
             Um sistema conforme implementa o envelope e apenas as famílias sobre as quais tem algo a dizer. O que isso
             significa depende do papel que você desempenha.
@@ -266,7 +266,7 @@ silence:     valid`}</pre>
       <section id="demos">
         <div className="wrap">
           <p className="eyebrow">Veja acontecer</p>
-          <h2>Dois cenários de notícia urgente, um barramento de histórias</h2>
+          <h2>Dois cenários de notícia urgente, uma pipeline de histórias</h2>
           <p className="lede">
             No IBC 2026 o consórcio rodou dois cenários com histórias e fornecedores diferentes, todos lendo e
             escrevendo a mesma Story com ferramentas reais de produção. Em nenhum deles alguma coisa envia um comando
@@ -289,7 +289,7 @@ silence:     valid`}</pre>
               Assista às demos ↗
             </a>
             <a className="btn" href={EMULATOR_URL} target="_blank" rel="noreferrer">
-              Abra o emulador ao vivo do barramento ↗
+              Abra o emulador ao vivo da pipeline ↗
             </a>
           </div>
         </div>
@@ -436,7 +436,7 @@ silence:     valid`}</pre>
             <div>
               <p>
                 O SOM ganhou forma no debate aberto — dois hackathons, um grupo de trabalho semanal e seis meses do
-                pontapé inicial a um barramento funcionando — e foi publicado como{' '}
+                pontapé inicial a uma pipeline funcionando — e foi publicado como{' '}
                 <b>versão 1.0 em 12 de setembro de 2026</b> no IBC, em Amsterdã.
               </p>
               <p>
@@ -447,7 +447,7 @@ silence:     valid`}</pre>
               </p>
               <p className="mb0">
                 A BBC R&amp;D trabalhou na junção com o TAMS. O Google Cloud foi o patrocinador principal do projeto
-                do Accelerator; a Amazon Web Services forneceu o barramento de referência, o dashboard e o storage
+                do Accelerator; a Amazon Web Services forneceu a pipeline de referência, o dashboard e o storage
                 TAMS; a The Associated Press e a The Weather Company forneceram dados.
               </p>
             </div>

@@ -110,6 +110,6 @@ export const GUARANTEES: { field: string; value: string; meaning: string }[] = [
   {
     field: 'depends',
     value: '[]',
-    meaning: 'O encadeamento acontece pelo barramento, não por dependências declaradas. Um hold se anuncia (advert) a partir do estado da flag, não importa quem a levantou.',
+    meaning: 'O encadeamento acontece pela pipeline, não por dependências declaradas. Um hold se anuncia (advert) a partir do estado da flag, não importa quem a levantou.',
   },
 ];

@@ -120,8 +120,8 @@ export const UI: Record<Locale, UiStrings> = {
       rundown: 'Espelho / CMS',
       playout: 'Playout / redes sociais',
       standardsDesk: 'Mesa de padrões editoriais',
-      bus: 'som.* — um barramento · um story_id · snapshots completos',
-      aria: 'Seis participantes em torno de um único barramento publish/subscribe. O dono da story publica story.context, um repositório de mídia publica delivery.media_available, uma ferramenta com executor publica skill.warning.raised, um espelho ou CMS publica eventos de link, o playout publica eventos de telling e a mesa de padrões publica registros de auditoria. Nenhum envia comandos a outro; cada um lê a story no barramento.',
+      bus: 'som.* — uma pipeline · um story_id · snapshots completos',
+      aria: 'Seis participantes em torno de uma única pipeline publish/subscribe. O dono da story publica story.context, um repositório de mídia publica delivery.media_available, uma ferramenta com executor publica skill.warning.raised, um espelho ou CMS publica eventos de link, o playout publica eventos de telling e a mesa de padrões publica registros de auditoria. Nenhum envia comandos a outro; cada um lê a story na pipeline.',
     },
   },
   es: {
