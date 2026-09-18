@@ -1,7 +1,12 @@
+import { useUi } from '../i18n/useLocale';
+
+type NodeKey = 'storyOwner' | 'mediaStore' | 'executorTool' | 'rundown' | 'playout' | 'standardsDesk';
+
 interface Node {
   x: number;
   y: number;
-  label: string;
+  /** Key into the localized diagram labels. */
+  key: NodeKey;
   sub: string;
   accent?: boolean;
 }
@@ -12,12 +17,12 @@ const BUS_Y = 158;
 
 /** Top row publishes onto the bus; bottom row reads the story and publishes in turn. */
 const NODES: Node[] = [
-  { x: 40, y: 34, label: 'Story owner (NCS)', sub: 'story.context' },
-  { x: 331, y: 34, label: 'Media store', sub: 'delivery.media_available' },
-  { x: 622, y: 34, label: 'Tool with an executor', sub: 'skill.warning.raised' },
-  { x: 40, y: 250, label: 'Rundown / CMS', sub: 'som.link.*' },
-  { x: 331, y: 250, label: 'Playout / social', sub: 'som.telling.*' },
-  { x: 622, y: 250, label: 'Standards desk', sub: 'som.system.audit', accent: true },
+  { x: 40, y: 34, key: 'storyOwner', sub: 'story.context' },
+  { x: 331, y: 34, key: 'mediaStore', sub: 'delivery.media_available' },
+  { x: 622, y: 34, key: 'executorTool', sub: 'skill.warning.raised' },
+  { x: 40, y: 250, key: 'rundown', sub: 'som.link.*' },
+  { x: 331, y: 250, key: 'playout', sub: 'som.telling.*' },
+  { x: 622, y: 250, key: 'standardsDesk', sub: 'som.system.audit', accent: true },
 ];
 
 const centre = (n: Node) => n.x + W / 2;
@@ -36,12 +41,13 @@ const DUR = '4s';
 
 /** Tools talk to a shared description of the story, not to each other. */
 export default function LoopDiagram() {
+  const t = useUi().loop;
   return (
     <div className="loop">
       <svg
         viewBox="0 20 852 300"
         role="img"
-        aria-label="Six participants around one publish-and-subscribe bus. The story owner publishes story.context, a media store publishes delivery.media_available, a tool with an executor publishes skill.warning.raised, a rundown or CMS publishes link events, playout publishes telling events, and the standards desk publishes system audit records. None of them sends a command to another; each reads the story from the bus."
+        aria-label={t.aria}
       >
         <defs>
           <marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
@@ -51,16 +57,16 @@ export default function LoopDiagram() {
 
         <rect className="node-box accent" x={20} y={BUS_Y - 12} width={812} height={24} rx={12} />
         <text className="node-sub" x={426} y={BUS_Y + 4} textAnchor="middle">
-          som.* — one bus · one story_id · full snapshots
+          {t.bus}
         </text>
         <path id="bus" d={`M40,${BUS_Y} H812`} fill="none" stroke="none" />
 
         {NODES.map((n) => (
-          <g key={n.label}>
+          <g key={n.key}>
             {n.accent && <rect className="gate" x={n.x - 6} y={n.y - 6} width={W + 12} height={H + 12} rx={12} />}
             <rect className="node-box" x={n.x} y={n.y} width={W} height={H} rx={9} />
             <text className="node-label" x={centre(n)} y={n.y + 22} textAnchor="middle">
-              {n.label}
+              {t[n.key]}
             </text>
             <text className="node-sub" x={centre(n)} y={n.y + 39} textAnchor="middle">
               {n.sub}

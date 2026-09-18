@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FieldDoc } from '../data/envelope';
+import { useUi } from '../i18n/useLocale';
 
 export interface FieldExplorerProps {
   fields: FieldDoc[];
@@ -17,6 +18,7 @@ function isStringLiteral(v: string) {
 /** A clickable JSON pane paired with a detail panel — the same component drives
  *  the envelope and the skill-warning payload. */
 export default function FieldExplorer({ fields, samples, comments }: FieldExplorerProps) {
+  const ui = useUi();
   const [selected, setSelected] = useState(fields[0]?.name ?? '');
   const field = fields.find((f) => f.name === selected) ?? fields[0];
 
@@ -64,7 +66,7 @@ export default function FieldExplorer({ fields, samples, comments }: FieldExplor
             <h4>{field.name}</h4>
             <div className="meta">
               <span className={`tag ${field.required ? 'req' : 'opt'}`}>
-                {field.required ? 'required' : 'optional'}
+                {field.required ? ui.field.required : ui.field.optional}
               </span>
               <span className="tag">{field.type}</span>
             </div>

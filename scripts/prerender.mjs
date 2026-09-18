@@ -1,10 +1,11 @@
 /**
  * Turns the SPA build into real static pages.
  *
- * For every route it renders the React tree to HTML, rewrites the head with
- * that page's own title, description, canonical and social tags, injects
- * JSON-LD, and writes dist/<route>/index.html. Then it emits sitemap.xml and
- * robots.txt.
+ * For every route in every language it renders the React tree to HTML,
+ * rewrites the head with that page's own title, description, canonical,
+ * hreflang alternates and social tags, injects JSON-LD, and writes
+ * dist/<route>/index.html. English lives at the root; each translation under
+ * its prefix (/pt, /es, /de). Then it emits sitemap.xml and robots.txt.
  *
  * Why it matters: without this, every route served the same <title>, the same
  * description and — worse — a canonical pointing at the home page, which tells
@@ -22,12 +23,25 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
 
 // The SSR bundle lives outside dist so it never ships with the site.
-const { render, ROUTES, SITE_NAME, SITE_URL, FAQS, READING } = await import(
-  join(ROOT, '.ssr-build', 'entry-server.js')
-);
+const { render, ROUTES, routesFor, SITE_NAME, SITE_URL, FAQS_BY_LOCALE, READING, LOCALES, localizePath } =
+  await import(join(ROOT, '.ssr-build', 'entry-server.js'));
 
 const template = readFileSync(join(DIST, 'index.html'), 'utf8');
 const OG_IMAGE = `${SITE_URL}/og.png`;
+
+/** Absolute URL for an English path in a given locale. */
+function urlFor(path, locale) {
+  const p = localizePath(path, locale);
+  return p === '/' ? `${SITE_URL}/` : `${SITE_URL}${p}`;
+}
+
+/** <link rel="alternate" hreflang> for every language, plus x-default → English. */
+function alternateLinks(path) {
+  return [
+    ...LOCALES.map((l) => `<link rel="alternate" hreflang="${l.htmlLang}" href="${urlFor(path, l.code)}" />`),
+    `<link rel="alternate" hreflang="x-default" href="${urlFor(path, 'en')}" />`,
+  ];
+}
 
 /** Replace the content of a meta/link tag matched by attribute. */
 function setTag(html, selectorAttr, value, contentAttr = 'content') {
@@ -50,8 +64,9 @@ function escapeAttr(s) {
   return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
-function jsonLd(route) {
-  const url = route.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${route.path}`;
+function jsonLd(route, locale) {
+  const url = urlFor(route.path, locale.code);
+  const home = routesFor(locale.code)[0];
 
   const webPage = {
     '@type': 'WebPage',
@@ -60,7 +75,7 @@ function jsonLd(route) {
     name: route.title,
     description: route.description,
     isPartOf: { '@id': `${SITE_URL}/#website` },
-    inLanguage: 'en',
+    inLanguage: locale.htmlLang,
     about: { '@id': `${SITE_URL}/#som` },
   };
 
@@ -72,7 +87,7 @@ function jsonLd(route) {
       name: SITE_NAME,
       description:
         'An unofficial visual guide to the Story Object Model 1.0, the open standard for story context in content production.',
-      inLanguage: 'en',
+      inLanguage: LOCALES.map((l) => l.htmlLang),
     },
     {
       '@type': 'DefinedTerm',
@@ -91,7 +106,7 @@ function jsonLd(route) {
       '@type': 'BreadcrumbList',
       '@id': `${url}#breadcrumb`,
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 1, name: home.label, item: urlFor('/', locale.code) },
         { '@type': 'ListItem', position: 2, name: route.label, item: url },
       ],
     });
@@ -103,7 +118,7 @@ function jsonLd(route) {
     graph.push({
       '@type': 'FAQPage',
       '@id': `${url}#faq`,
-      mainEntity: FAQS.map((f) => ({
+      mainEntity: FAQS_BY_LOCALE[locale.code].map((f) => ({
         '@type': 'Question',
         name: f.q,
         acceptedAnswer: { '@type': 'Answer', text: stripTags(f.a) },
@@ -114,10 +129,11 @@ function jsonLd(route) {
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
 }
 
-function buildPage(route) {
-  const url = route.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${route.path}`;
+function buildPage(route, locale) {
+  const url = urlFor(route.path, locale.code);
   let html = template;
 
+  html = html.replace(/<html lang="[^"]*">/i, `<html lang="${locale.htmlLang}">`);
   html = html.replace(/<title>[^<]*<\/title>/i, `<title>${escapeAttr(route.title)}</title>`);
   html = setTag(html, 'name="description"', route.description);
   html = setTag(html, 'rel="canonical"', url, 'href');
@@ -129,14 +145,19 @@ function buildPage(route) {
   html = setTag(html, 'name="twitter:description"', route.description);
   html = setTag(html, 'name="twitter:image"', OG_IMAGE);
 
-  html = html.replace(
-    '</head>',
-    `  <script type="application/ld+json">${jsonLd(route)}</script>\n  </head>`,
-  );
+  const head = [
+    ...alternateLinks(route.path),
+    `<meta property="og:locale" content="${locale.ogLocale}" />`,
+    ...LOCALES.filter((l) => l.code !== locale.code).map(
+      (l) => `<meta property="og:locale:alternate" content="${l.ogLocale}" />`,
+    ),
+    `<script type="application/ld+json">${jsonLd(route, locale)}</script>`,
+  ];
+  html = html.replace('</head>', `${head.map((h) => `  ${h}`).join('\n')}\n  </head>`);
 
   html = html.replace(
     '<div id="root"></div>',
-    `<div id="root">${render(route.path)}</div>`,
+    `<div id="root">${render(localizePath(route.path, locale.code))}</div>`,
   );
 
   return html;
@@ -144,22 +165,25 @@ function buildPage(route) {
 
 // --- pages ---------------------------------------------------------------
 
-for (const route of ROUTES) {
-  const html = buildPage(route);
+for (const locale of LOCALES) {
+  for (const route of routesFor(locale.code)) {
+    const html = buildPage(route, locale);
+    const path = localizePath(route.path, locale.code);
 
-  if (route.path === '/') {
-    writeFileSync(join(DIST, 'index.html'), html);
-  } else {
-    const name = route.path.slice(1);
-    // Both spellings, because hosts disagree about how they resolve an
-    // extensionless path: Netlify and Cloudflare serve <name>.html, GitHub
-    // Pages and S3-style hosts want <name>/index.html. Writing both means the
-    // canonical URL (no trailing slash) resolves everywhere.
-    writeFileSync(join(DIST, `${name}.html`), html);
-    mkdirSync(join(DIST, name), { recursive: true });
-    writeFileSync(join(DIST, name, 'index.html'), html);
+    if (path === '/') {
+      writeFileSync(join(DIST, 'index.html'), html);
+    } else {
+      const name = path.slice(1);
+      // Both spellings, because hosts disagree about how they resolve an
+      // extensionless path: Netlify and Cloudflare serve <name>.html, GitHub
+      // Pages and S3-style hosts want <name>/index.html. Writing both means the
+      // canonical URL (no trailing slash) resolves everywhere.
+      mkdirSync(join(DIST, name), { recursive: true });
+      writeFileSync(join(DIST, `${name}.html`), html);
+      writeFileSync(join(DIST, name, 'index.html'), html);
+    }
+    console.log(`prerendered ${path}`);
   }
-  console.log(`prerendered ${route.path}`);
 }
 
 // The SPA fallback for anything not in the route table. Left un-prerendered so
@@ -174,21 +198,30 @@ console.log('wrote 404.html');
 // --- sitemap -------------------------------------------------------------
 
 const today = new Date().toISOString().slice(0, 10);
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${ROUTES.map((r) => {
-  const loc = r.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${r.path}`;
-  return `  <url>
-    <loc>${loc}</loc>
+// Every language version is its own <url>, and each lists all its siblings —
+// Google wants the alternates repeated on every entry, including itself.
+const entries = LOCALES.flatMap((l) =>
+  ROUTES.map((r) => {
+    const alternates = [
+      ...LOCALES.map((a) => `    <xhtml:link rel="alternate" hreflang="${a.htmlLang}" href="${urlFor(r.path, a.code)}" />`),
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${urlFor(r.path, 'en')}" />`,
+    ].join('\n');
+    return `  <url>
+    <loc>${urlFor(r.path, l.code)}</loc>
+${alternates}
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${r.priority.toFixed(1)}</priority>
   </url>`;
-}).join('\n')}
+  }),
+);
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${entries.join('\n')}
 </urlset>
 `;
 writeFileSync(join(DIST, 'sitemap.xml'), sitemap);
-console.log(`wrote sitemap.xml (${ROUTES.length} urls)`);
+console.log(`wrote sitemap.xml (${entries.length} urls)`);
 
 // --- robots --------------------------------------------------------------
 
@@ -227,6 +260,10 @@ Where this guide and a published schema disagree, the schema is right.
 ## Pages
 
 ${ROUTES.map((r) => `- [${r.label}](${r.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${r.path}`}): ${r.description}`).join('\n')}
+
+## Translations
+
+The guide is also available in ${LOCALES.filter((l) => l.code !== 'en').map((l) => `${l.name} (${urlFor('/', l.code)})`).join(', ')}. English is the source text.
 
 ## Primary sources
 

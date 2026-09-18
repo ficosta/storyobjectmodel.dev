@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { metaForPath } from '../data/seo';
+import { metaForPath, SITE_URL } from '../data/seo';
 import { Logo } from './Logo';
 import { EMULATOR_URL, OFFICIAL_URL, SCHEMA_BASE_URL, SPEC_REPO_URL } from '../data/consortium';
+import { LOCALES, LOCALE_INFO, localizePath, stripLocale } from '../i18n/locales';
+import { useLocale, useLocalePath, useUi } from '../i18n/useLocale';
 
 const THEME_KEY = 'som-theme';
 
@@ -15,6 +17,7 @@ function readTheme(): 'dark' | 'light' {
 }
 
 function ThemeToggle() {
+  const ui = useUi();
   // Starts null so the prerendered HTML and the first client render agree;
   // the stored preference is read once, after mount. The inline script in
   // index.html has already painted the right theme, so nothing flashes.
@@ -38,50 +41,78 @@ function ThemeToggle() {
     <button
       className="icon-btn"
       onClick={() => setTheme(current === 'light' ? 'dark' : 'light')}
-      aria-label={current === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+      aria-label={current === 'light' ? ui.themeToDark : ui.themeToLight}
     >
       {current === 'light' ? '☾' : '☀'}
     </button>
   );
 }
 
-const NAV = [
-  { to: '/concepts', label: 'Concepts' },
-  { to: '/envelope', label: 'Envelope' },
-  { to: '/bus', label: 'Messages' },
-  { to: '/skills', label: 'Skills' },
-];
+/** Links to the page you are on, in each of the other languages. */
+function LangSwitch() {
+  const { pathname, hash } = useLocation();
+  const locale = useLocale();
+  const ui = useUi();
+  const bare = stripLocale(pathname);
+
+  return (
+    <div className="lang" role="group" aria-label={ui.language}>
+      {LOCALES.map((l) => (
+        <Link
+          key={l.code}
+          to={localizePath(bare, l.code) + hash}
+          hrefLang={l.htmlLang}
+          lang={l.htmlLang}
+          title={l.name}
+          aria-current={l.code === locale ? 'true' : undefined}
+          className={l.code === locale ? 'active' : ''}
+        >
+          {l.short}
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const ui = useUi();
+  const lp = useLocalePath();
+  const nav = [
+    { to: '/concepts', label: ui.nav.concepts },
+    { to: '/envelope', label: ui.nav.envelope },
+    { to: '/bus', label: ui.nav.messages },
+    { to: '/skills', label: ui.nav.skills },
+  ];
 
   useEffect(() => setOpen(false), [pathname]);
 
   return (
     <header className="site">
       <div className="nav">
-        <Link className="brand" to="/">
+        <Link className="brand" to={lp('/')}>
           <Logo size={26} />
           <span>
             storyobjectmodel<span className="tld">.dev</span>
           </span>
         </Link>
-        <button className="icon-btn" id="navToggle" aria-label="Toggle navigation" onClick={() => setOpen((o) => !o)}>
+        <button className="icon-btn" id="navToggle" aria-label={ui.toggleNav} onClick={() => setOpen((o) => !o)}>
           ☰
         </button>
         <nav className={open ? 'open' : ''}>
-          {NAV.map((item) => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'active' : '')}>
+          {nav.map((item) => (
+            <NavLink key={item.to} to={lp(item.to)} className={({ isActive }) => (isActive ? 'active' : '')}>
               {item.label}
             </NavLink>
           ))}
           <a href={SPEC_REPO_URL} target="_blank" rel="noreferrer">
-            Spec ↗
+            {ui.nav.spec} ↗
           </a>
+          <LangSwitch />
           <ThemeToggle />
-          <Link className="nav-cta" to="/get-started">
-            Get started
+          <Link className="nav-cta" to={lp('/get-started')}>
+            {ui.nav.getStarted}
           </Link>
         </nav>
       </div>
@@ -90,54 +121,57 @@ function Header() {
 }
 
 function Footer() {
+  const ui = useUi();
+  const t = ui.footer;
+  const lp = useLocalePath();
   return (
     <footer className="site">
       <div className="wrap">
         <div className="cols">
           <div>
-            <Link className="brand" to="/" style={{ marginBottom: 12 }}>
+            <Link className="brand" to={lp('/')} style={{ marginBottom: 12 }}>
               <Logo size={24} />
               <span>
                 storyobjectmodel<span className="tld">.dev</span>
               </span>
             </Link>
             <p className="small muted" style={{ maxWidth: '34ch' }}>
-              A visual guide to SOM 1.0, the open standard for story context in content production.
+              {t.tagline}
             </p>
           </div>
           <div>
-            <h4>Learn</h4>
+            <h4>{t.learn}</h4>
             <ul>
               <li>
-                <Link to="/concepts">Concepts</Link>
+                <Link to={lp('/concepts')}>{ui.nav.concepts}</Link>
               </li>
               <li>
-                <Link to="/concepts#lifecycle">Story lifecycle</Link>
+                <Link to={lp('/concepts#lifecycle')}>{t.storyLifecycle}</Link>
               </li>
               <li>
-                <Link to="/concepts#glossary">Glossary</Link>
+                <Link to={lp('/concepts#glossary')}>{t.glossary}</Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4>Reference</h4>
+            <h4>{t.reference}</h4>
             <ul>
               <li>
-                <Link to="/envelope">Envelope</Link>
+                <Link to={lp('/envelope')}>{ui.nav.envelope}</Link>
               </li>
               <li>
-                <Link to="/bus">Message families</Link>
+                <Link to={lp('/bus')}>{t.messageFamilies}</Link>
               </li>
               <li>
-                <Link to="/skills">Skills</Link>
+                <Link to={lp('/skills')}>{ui.nav.skills}</Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4>Build</h4>
+            <h4>{t.build}</h4>
             <ul>
               <li>
-                <Link to="/get-started">Get started</Link>
+                <Link to={lp('/get-started')}>{ui.nav.getStarted}</Link>
               </li>
               <li>
                 <a href={OFFICIAL_URL} target="_blank" rel="noreferrer">
@@ -146,17 +180,17 @@ function Footer() {
               </li>
               <li>
                 <a href={SPEC_REPO_URL} target="_blank" rel="noreferrer">
-                  Specification ↗
+                  {t.specification} ↗
                 </a>
               </li>
               <li>
                 <a href={`${SCHEMA_BASE_URL}/`} target="_blank" rel="noreferrer">
-                  Schemas 1.0 ↗
+                  {t.schemas} ↗
                 </a>
               </li>
               <li>
                 <a href={EMULATOR_URL} target="_blank" rel="noreferrer">
-                  Emulator ↗
+                  {t.emulator} ↗
                 </a>
               </li>
             </ul>
@@ -164,21 +198,24 @@ function Footer() {
         </div>
         <div className="legal">
           <span>
-            © {new Date().getFullYear()} — an unofficial community guide to the Story Object Model. The standard lives
-            at <a href={OFFICIAL_URL}>storyobjectmodel.com</a>; its specification prose is CC BY 4.0 and its schemas
-            Apache 2.0, and where this guide and a schema disagree, the schema is right.
+            © {new Date().getFullYear()} {t.legalBefore} <a href={OFFICIAL_URL}>storyobjectmodel.com</a>
+            {t.legalAfter}
           </span>
           <span className="craft">
-            Crafted with some agents love and{' '}
+            {t.craftBefore}{' '}
             <a href="https://github.com/ficosta" target="_blank" rel="noreferrer">
               ficosta
             </a>{' '}
-            for the community
+            {t.craftAfter}
           </span>
         </div>
       </div>
     </footer>
   );
+}
+
+function canonicalUrl(path: string): string {
+  return path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`;
 }
 
 /** Client-side navigation doesn't reload the document, so the head has to be
@@ -188,13 +225,14 @@ function useDocumentMeta() {
   const { pathname } = useLocation();
   useEffect(() => {
     const meta = metaForPath(pathname);
+    document.documentElement.lang = LOCALE_INFO[meta.locale].htmlLang;
     document.title = meta.title;
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute('content', meta.description);
     document
       .querySelector('link[rel="canonical"]')
-      ?.setAttribute('href', `https://storyobjectmodel.dev${meta.path === '/' ? '/' : meta.path}`);
+      ?.setAttribute('href', canonicalUrl(localizePath(meta.path, meta.locale)));
   }, [pathname]);
 }
 

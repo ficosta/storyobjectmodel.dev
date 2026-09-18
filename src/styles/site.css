@@ -196,7 +196,8 @@ header.site {
 
 #navToggle { display: none; }
 
-@media (max-width: 900px) {
+/* Collapses at 1100px: the German and Portuguese labels need ~1080px on one line. */
+@media (max-width: 1100px) {
   .nav { flex-wrap: wrap; height: auto; padding-block: 12px; }
   #navToggle { display: grid; margin-left: auto; }
   .nav nav {
@@ -638,8 +639,32 @@ ul.clean li::before {
   margin-left: 10px;
 }
 .nav .nav-cta:hover { text-decoration: none; filter: brightness(1.06); color: var(--accent-ink); }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .nav .nav-cta { margin-left: 0; margin-top: 8px; text-align: center; }
+}
+
+/* ---------- language switcher ---------- */
+
+.nav .lang {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-left: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px;
+}
+.nav .lang a {
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding: 5px 8px;
+  color: var(--fg-3, var(--fg-2));
+}
+.nav .lang a.active { background: var(--bg-3); color: var(--fg); }
+@media (max-width: 1100px) {
+  .nav .lang { align-self: flex-start; margin: 8px 0 0; }
+  .nav nav .lang a { padding: 7px 12px; border-radius: 999px; }
 }
 
 /* ---------- proposer logos ---------- */

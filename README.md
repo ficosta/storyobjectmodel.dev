@@ -50,11 +50,38 @@ renders, so they cannot drift. Route titles and descriptions live in `src/data/s
 Client-side navigation updates title, description and canonical by hand, since the document
 never reloads.
 
+## Languages
+
+The guide ships in English (the source), Portuguese, Spanish and German. English keeps the
+root URLs; each translation lives under its own prefix — `/pt`, `/es`, `/de` — so every
+language is a separate, crawlable set of prerendered pages. The locale comes from the URL
+alone, so prerendered HTML and the hydrating client always agree; there is no browser-language
+redirect.
+
+- `src/i18n/locales.ts` — the locale list and the path helpers (`localizePath`, `stripLocale`).
+- `src/i18n/ui.ts` — strings for the shared chrome: header, footer, language switcher, the
+  field explorer and the loop diagram.
+- `src/data/seo.ts` — titles and descriptions per route, per language.
+- `src/locales/<lang>/pages/` and `src/locales/<lang>/data/` — the translated pages and the
+  prose of the data files. Non-prose data (enums, URLs, name lists) is re-exported from
+  `src/data/`, so it has one home.
+- `src/locales/index.ts` — the registry the router and the prerenderer read.
+
+The prerenderer writes every route in every language, with `<html lang>`, `hreflang`
+alternates (plus `x-default` → English), `og:locale`, per-language JSON-LD, and a sitemap that
+lists each language version with its siblings.
+
+**Changing content:** edit the English page first, then carry the change into each
+`src/locales/<lang>/` copy. The translations mirror the English structure element for element
+— same ids, same classes — so a diff of the English file is a checklist for the other three.
+
 ## Structure
 
 ```
 src/
-  pages/        one component per route (Home, Concepts, Envelope, Bus, Skills, GetStarted)
+  pages/        one component per route (Home, Concepts, Envelope, Bus, Skills, GetStarted) — English
+  locales/      pt/, es/, de/ — translated pages and data prose; index.ts is the registry
+  i18n/         locale list, path helpers, shared UI strings, useLocale hooks
   components/   Layout (header/footer/theme), LoopDiagram, FieldExplorer, Bits (shared UI)
   data/         envelope.ts (envelope + warning fields, the seven families), skills.ts (the
                 skill library), faq.ts, reading.ts (sources, principles), consortium.ts
