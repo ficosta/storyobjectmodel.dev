@@ -7,8 +7,13 @@ it links to.
 
     python3 scripts/make-share-images.py
 
-Writes public/og.png (1200x630), public/og-square.png (1000x1000) and
-public/apple-touch-icon.png (180x180).
+Writes public/og.png (1200x630), public/og-square.png (1000x1000),
+public/apple-touch-icon.png (180x180), and the favicons: public/favicon.ico
+(16/32/48), public/icon-192.png and public/icon-512.png.
+
+The favicons sit on the solid light ground rather than transparent: Google
+shows them on white and on dark results pages, and wants a square at least
+48px on a side. The SVG favicon adapts to dark mode; these cannot.
 """
 
 from __future__ import annotations
@@ -194,16 +199,29 @@ def make_og(width: int, height: int, path: str, square: bool = False) -> None:
     print(f"wrote {os.path.relpath(path, ROOT)} ({width}x{height})")
 
 
-def make_icon(size: int, path: str) -> None:
+def render_icon(size: int) -> Image.Image:
     img = Image.new("RGB", (size * SS, size * SS), BG)
     d = ImageDraw.Draw(img)
     mark = size * SS * 0.62
     draw_mark(d, (size * SS - mark) / 2, (size * SS - mark) / 2, mark)
-    img.resize((size, size), Image.LANCZOS).save(path, optimize=True)
+    return img.resize((size, size), Image.LANCZOS)
+
+
+def make_icon(size: int, path: str) -> None:
+    render_icon(size).save(path, optimize=True)
     print(f"wrote {os.path.relpath(path, ROOT)} ({size}x{size})")
+
+
+def make_ico(path: str) -> None:
+    # Drawn at 48 and downsampled by Pillow into each size the ICO carries.
+    render_icon(48 * 4).save(path, format="ICO", sizes=[(16, 16), (32, 32), (48, 48)])
+    print(f"wrote {os.path.relpath(path, ROOT)} (16/32/48)")
 
 
 if __name__ == "__main__":
     make_og(1200, 630, os.path.join(PUBLIC, "og.png"))
     make_og(1000, 1000, os.path.join(PUBLIC, "og-square.png"), square=True)
     make_icon(180, os.path.join(PUBLIC, "apple-touch-icon.png"))
+    make_icon(192, os.path.join(PUBLIC, "icon-192.png"))
+    make_icon(512, os.path.join(PUBLIC, "icon-512.png"))
+    make_ico(os.path.join(PUBLIC, "favicon.ico"))

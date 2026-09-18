@@ -103,7 +103,10 @@ python3 scripts/make-share-images.py
 ```
 
 It writes `public/og.png` (1200×630, the `og:image`), `public/og-square.png` (1000×1000, for
-places that crop to a square) and `public/apple-touch-icon.png` (180×180).
+places that crop to a square), `public/apple-touch-icon.png` (180×180), and the favicons Google
+Search picks up — `public/favicon.ico` (16/32/48) and `public/icon-192.png` / `icon-512.png` —
+on the solid light ground, since Google wants a square of at least 48px and shows it on both
+light and dark result pages.
 
 ## Logos
 
